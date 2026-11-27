@@ -102,6 +102,9 @@ select.input { padding-right: 28px; }
 .switch-arrow { color: var(--muted); flex-shrink: 0; }
 .product-switch-name { flex-grow: 1; font-size: 16px; font-weight: 700; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.card.clickable { cursor: pointer; }
+.card.clickable:hover { border-color: #B5B5AE; }
+.btn.ghost { border-color: transparent; color: var(--muted); height: 28px; padding: 0 8px; margin: -6px -6px -6px 0; }
 .card-title { font-size: 12px; font-weight: 700; color: var(--muted); }
 .info-grid { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 6px 8px; margin: 0; }
 .info-grid dt { color: var(--muted); }
@@ -232,6 +235,10 @@ select.input { padding-right: 28px; }
 .date-col { width: 80px; text-align: right; }
 .note-box { font-size: 13px; color: var(--muted); background: #fff; border-radius: 8px; padding: 10px; }
 .danger-box { font-size: 13px; background: var(--alert-bg); color: var(--alert-ink); border-radius: 8px; padding: 8px 10px; }
+.choice-box { border: 1px solid var(--ask-line); background: #FFFBEB; border-radius: 8px; padding: 10px 14px 12px; margin: 0; display: flex; flex-direction: column; gap: 8px; color: var(--ask-ink); }
+.choice-box legend { font-weight: 700; padding: 0 4px; }
+.choice-box label { cursor: pointer; }
+.mat-row > .muted { padding-left: 4px; }
 .tpl-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
 
 .form-col.wide { flex: 1 1 720px; }

@@ -5,7 +5,7 @@ import { productEvents } from '../data/selectors.js';
 import MemoComposer from './MemoComposer.jsx';
 import MemoItem from './MemoItem.jsx';
 
-export default function ProductSidebar({ product, products, onSelect, onNewProduct, onOpenStep, onAddMemo, onEditMemo, onDeleteMemo }) {
+export default function ProductSidebar({ product, products, onSelect, onNewProduct, onOpenStep, onAddMemo, onEditMemo, onDeleteMemo, onEditProduct }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [tab, setTab] = useState(0);
   const [composing, setComposing] = useState(false);
@@ -50,14 +50,17 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
         )}
       </div>
 
-      <section className="card">
-        <h3 className="card-title">제품 정보</h3>
+      <section className="card clickable" onClick={onEditProduct} title="눌러서 제품 정보 고치기">
+        <div className="row">
+          <h3 className="card-title grow">제품 정보</h3>
+          <button type="button" className="btn sm ghost" onClick={(e) => { e.stopPropagation(); onEditProduct(); }}>수정</button>
+        </div>
         <dl className="info-grid">
           <dt>유형</dt><dd>{product.type}</dd>
           <dt>유통</dt><dd>{product.channel || <span className="muted">미정</span>}</dd>
           <dt>런칭일</dt><dd className="strong">{full(product.launch)}</dd>
-          <dt>완제품 입고</dt><dd>{full(product.finishedArrival)} <span className="muted small">자동 계산</span></dd>
           <dt>부자재 입고</dt><dd>{full(product.materialArrival)} <span className="muted small">자동 · 공통</span></dd>
+          <dt>완제품 입고</dt><dd>{full(product.finishedArrival)} <span className="muted small">자동 계산</span></dd>
         </dl>
         <div className="sep" />
         <h3 className="card-title">부자재 · 업체</h3>

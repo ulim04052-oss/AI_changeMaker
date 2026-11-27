@@ -12,6 +12,7 @@ import MonthCalendar from './components/MonthCalendar.jsx';
 import Notices from './components/Notices.jsx';
 import EmptyState from './components/EmptyState.jsx';
 import NewProductDialog from './components/NewProductDialog.jsx';
+import ProductEditDialog from './components/ProductEditDialog.jsx';
 import TemplateEditorDialog from './components/TemplateEditorDialog.jsx';
 import TemplateListDialog from './components/TemplateListDialog.jsx';
 import ImportConfirmDialog from './components/ImportConfirmDialog.jsx';
@@ -184,6 +185,44 @@ export default function App() {
     showToast(`'${p.name}' 제품을 만들었어요. 일정 ${materials.reduce((n, m) => n + m.steps.length, 0) + 3}개가 생겼어요.`);
   };
 
+  // ---------- 제품 정보 수정 ----------
+  const saveProductInfo = (pid, form) => {
+    const before = data;
+    const old = products.find((p) => p.id === pid);
+    const arr = arrivals(form.launch, form.gaps);
+    const fixed = { 런칭: form.launch, '완제품 입고': arr.finished, '부자재 입고': arr.material };
+    const delta = form.reschedule === 'shift' ? workdayDiff(old.materialArrival, arr.material) : 0;
+    const kept = new Set();
+    const materials = form.materials.map((row) => {
+      if (row.id) {
+        kept.add(row.id);
+        const m = old.materials.find((x) => x.id === row.id);
+        return {
+          ...m, name: row.kind.trim(), vendor: row.vendor.trim(),
+          steps: delta === 0 ? m.steps : m.steps.map((s) => {
+            const to = addWorkdays(s.date, delta);
+            return { ...s, date: to, changes: [...(s.changes || []), `${md(s.date)} → ${md(to)}, 런칭일 변경`] };
+          }),
+        };
+      }
+      const t = data.templates.find((x) => x.id === row.templateId);
+      return {
+        id: uid(pid + '-'), name: row.kind.trim(), vendor: row.vendor.trim(), templateName: t.name,
+        steps: stepsFromTemplate(t, fixed).map((s) => ({ id: uid('s'), name: s.name, kind: s.kind, date: s.date, rule: s.rule, changes: [] })),
+      };
+    });
+    const goneSteps = new Set(old.materials.filter((m) => !kept.has(m.id)).flatMap((m) => m.steps.map((s) => s.id)));
+    updateProduct(pid, (p) => ({
+      ...p, name: form.name.trim(), type: form.type, channel: form.channel.trim(), color: form.color,
+      launch: form.launch, gaps: form.gaps, finishedArrival: arr.finished, materialArrival: arr.material, materials,
+      memos: p.memos.map((m) => (goneSteps.has(m.stepId) ? { ...m, stepId: null } : m)),
+    }));
+    setData((d) => ({ ...d, vendors: [...new Set([...d.vendors, ...form.materials.map((m) => m.vendor.trim())])] }));
+    setDetailId(null);
+    setDialog(null);
+    showToast('제품 정보를 고쳤어요.', before);
+  };
+
   // ---------- 필요 일정 ----------
   const saveTemplate = (tpl, returnTo) => {
     setData((d) => {
@@ -252,6 +291,15 @@ export default function App() {
           draft={dialog.draft}
         />
       )}
+      {dialog?.type === 'editProduct' && product && (
+        <ProductEditDialog
+          product={product}
+          templates={data.templates}
+          vendors={data.vendors}
+          onClose={() => setDialog(null)}
+          onSave={(f) => saveProductInfo(product.id, f)}
+        />
+      )}
       {dialog?.type === 'templates' && (
         <TemplateListDialog
           templates={data.templates}
@@ -314,6 +362,7 @@ export default function App() {
               products={products}
               onSelect={(id) => { setSelectedId(id); setDetailId(null); setVendor('전체'); }}
               onNewProduct={() => setDialog({ type: 'new' })}
+              onEditProduct={() => setDialog({ type: 'editProduct' })}
               onOpenStep={(id) => { const ev = findEvent(products, id); if (ev) openDetail(ev); }}
               onAddMemo={(text, stepId) => addMemo(product.id, text, stepId)}
               onEditMemo={(id, text) => editMemo(product.id, id, text)}
