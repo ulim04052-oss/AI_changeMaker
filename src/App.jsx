@@ -143,6 +143,14 @@ export default function App() {
   const addMemo = (pid, text, stepId) =>
     updateProduct(pid, (p) => ({ ...p, memos: [...p.memos, { id: uid('m'), text, stepId: stepId || null }] }));
 
+  const editMemo = (pid, id, text) =>
+    updateProduct(pid, (p) => ({ ...p, memos: p.memos.map((m) => (m.id === id ? { ...m, text } : m)) }));
+  const deleteMemo = (pid, id) => {
+    const before = data;
+    updateProduct(pid, (p) => ({ ...p, memos: p.memos.filter((m) => m.id !== id) }));
+    showToast('메모를 지웠어요.', before);
+  };
+
   // ---------- 새 제품 ----------
   const createProduct = (form) => {
     const arr = arrivals(form.launch, form.gaps);
@@ -158,7 +166,7 @@ export default function App() {
       };
     });
     const p = {
-      id: pid, name: form.name, type: form.type, color: form.color, launch: form.launch,
+      id: pid, name: form.name, type: form.type, channel: form.channel.trim(), color: form.color, launch: form.launch,
       finishedArrival: arr.finished, materialArrival: arr.material, gaps: form.gaps, materials, memos: [],
     };
     setData((d) => ({
@@ -297,6 +305,8 @@ export default function App() {
               onBack={() => setDetailId(null)}
               onMove={(d) => askMove(detail.id, d)}
               onAddMemo={(text) => addMemo(product.id, text, detail.id)}
+              onEditMemo={(id, text) => editMemo(product.id, id, text)}
+              onDeleteMemo={(id) => deleteMemo(product.id, id)}
             />
           ) : (
             <ProductSidebar
@@ -306,6 +316,8 @@ export default function App() {
               onNewProduct={() => setDialog({ type: 'new' })}
               onOpenStep={(id) => { const ev = findEvent(products, id); if (ev) openDetail(ev); }}
               onAddMemo={(text, stepId) => addMemo(product.id, text, stepId)}
+              onEditMemo={(id, text) => editMemo(product.id, id, text)}
+              onDeleteMemo={(id) => deleteMemo(product.id, id)}
             />
           )}
         </aside>

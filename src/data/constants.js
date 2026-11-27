@@ -25,6 +25,7 @@ export const colorOf = (id) => PRODUCT_COLORS.find((c) => c.id === id) || PRODUC
 
 export const UNITS = ['영업일', '주', '달'];
 export const MATERIAL_KINDS = ['튜브', '라벨', '단상자'];
+export const CHANNELS = ['올리브영', '자사몰', '쿠팡', '무신사'];
 export const PRODUCT_TYPES = ['튜브형 핸드크림', '세니타이저'];
 
 // 한국 공휴일 (대체공휴일 포함). 예시용 목록이라 실제 서비스 전에 한 번 더 확인해요.

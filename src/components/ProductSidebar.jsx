@@ -3,8 +3,9 @@ import { KINDS, colorOf } from '../data/constants.js';
 import { full, mdw } from '../engine/dates.js';
 import { productEvents } from '../data/selectors.js';
 import MemoComposer from './MemoComposer.jsx';
+import MemoItem from './MemoItem.jsx';
 
-export default function ProductSidebar({ product, products, onSelect, onNewProduct, onOpenStep, onAddMemo }) {
+export default function ProductSidebar({ product, products, onSelect, onNewProduct, onOpenStep, onAddMemo, onEditMemo, onDeleteMemo }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [tab, setTab] = useState(0);
   const [composing, setComposing] = useState(false);
@@ -25,10 +26,10 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
   return (
     <>
       <div className="menu-wrap">
-        <button className="product-switch" style={{ '--dot': color.dot }} onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen}>
+        <button className="product-switch" style={{ '--dot': color.dot }} onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label={`${product.name}, 다른 제품으로 바꾸기`}>
           <span className="dot lg" />
           <span className="product-switch-name">{product.name}</span>
-          <span className="muted small">바꾸기 ▾</span>
+          <svg className="switch-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
         </button>
         {menuOpen && (
           <div className="menu product-menu">
@@ -53,6 +54,7 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
         <h3 className="card-title">제품 정보</h3>
         <dl className="info-grid">
           <dt>유형</dt><dd>{product.type}</dd>
+          <dt>유통</dt><dd>{product.channel || <span className="muted">미정</span>}</dd>
           <dt>런칭일</dt><dd className="strong">{full(product.launch)}</dd>
           <dt>완제품 입고</dt><dd>{full(product.finishedArrival)} <span className="muted small">자동 계산</span></dd>
           <dt>부자재 입고</dt><dd>{full(product.materialArrival)} <span className="muted small">자동 · 공통</span></dd>
@@ -95,8 +97,7 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
         {product.memos.map((m) => {
           const linked = m.stepId ? byId[m.stepId] : null;
           return (
-            <div key={m.id} className="memo">
-              <div>{m.text}</div>
+            <MemoItem key={m.id} memo={m} onEdit={onEditMemo} onDelete={onDeleteMemo}>
               {linked ? (
                 <button
                   className="link-tag"
@@ -109,7 +110,7 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
               ) : (
                 <div className="muted small">제품 전체 · 연결 없음</div>
               )}
-            </div>
+            </MemoItem>
           );
         })}
         {composing ? (

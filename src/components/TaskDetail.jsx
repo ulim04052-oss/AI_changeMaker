@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { KINDS, colorOf } from '../data/constants.js';
 import { full } from '../engine/dates.js';
 import MemoComposer from './MemoComposer.jsx';
+import MemoItem from './MemoItem.jsx';
 
 // 칩을 누르면 왼쪽 패널이 이 화면으로 바뀌어요 (팝업 없음)
-export default function TaskDetail({ ev, product, onBack, onMove, onAddMemo }) {
+export default function TaskDetail({ ev, product, onBack, onMove, onAddMemo, onEditMemo, onDeleteMemo }) {
   const [editingDate, setEditingDate] = useState(false);
   const [composing, setComposing] = useState(false);
   const kind = KINDS[ev.kind];
@@ -59,7 +60,7 @@ export default function TaskDetail({ ev, product, onBack, onMove, onAddMemo }) {
       <section className="card">
         <h3 className="card-title">이 작업에 연결된 메모</h3>
         {memos.length === 0 && !composing && <div className="muted small">아직 없어요.</div>}
-        {memos.map((m) => <div key={m.id} className="memo">{m.text}</div>)}
+        {memos.map((m) => <MemoItem key={m.id} memo={m} onEdit={onEditMemo} onDelete={onDeleteMemo} />)}
         {composing ? (
           <MemoComposer
             steps={[ev]}

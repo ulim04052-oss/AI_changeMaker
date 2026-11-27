@@ -70,9 +70,9 @@ select.input { padding-right: 28px; }
   display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 20px;
   background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20;
 }
-.brand { font-weight: 700; font-size: 16px; margin-right: 12px; }
+.brand { font-weight: 700; font-size: 18px; margin-right: 12px; }
 .month-nav { display: flex; align-items: center; gap: 4px; }
-.month-label { font-weight: 700; font-size: 18px; padding: 0 10px; min-width: 128px; text-align: center; }
+.month-label { font-weight: 700; font-size: 16px; padding: 0 10px; min-width: 128px; text-align: center; }
 .layout { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px 20px; align-items: flex-start; }
 .sidebar { flex: 1 1 300px; max-width: 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
@@ -99,6 +99,7 @@ select.input { padding-right: 28px; }
   background: var(--surface); border: 2px solid var(--ink); border-radius: 10px; cursor: pointer; text-align: left;
 }
 .product-switch .dot { background: var(--dot); }
+.switch-arrow { color: var(--muted); flex-shrink: 0; }
 .product-switch-name { flex-grow: 1; font-size: 16px; font-weight: 700; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .card-title { font-size: 12px; font-weight: 700; color: var(--muted); }
@@ -117,6 +118,12 @@ select.input { padding-right: 28px; }
 .step-row:hover { background: var(--soft); }
 .step-row .num { color: var(--ink-2); }
 .memo { padding: 10px; background: var(--soft); border-radius: 8px; line-height: 1.5; display: flex; flex-direction: column; gap: 6px; }
+.memo { position: relative; padding-right: 30px; }
+.memo-text { width: 100%; border: 1px solid transparent; border-radius: 6px; background: transparent; padding: 2px 4px; margin: -2px -4px; line-height: 1.5; resize: none; overflow: hidden; display: block; }
+.memo-text:hover { border-color: var(--line); background: #fff; }
+.memo-text:focus { outline: none; border-color: var(--ink); background: #fff; }
+.memo-delete { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #9A9A94; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.memo-delete:hover { color: var(--ink-2); background: #E6E6E1; }
 .link-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 3px 8px; border-radius: 5px; border: 0; cursor: pointer; }
 .link-tag:hover { text-decoration: underline; }
 .memo-form { display: flex; flex-direction: column; gap: 10px; padding: 10px; border: 1px solid var(--ink); border-radius: 8px; }
