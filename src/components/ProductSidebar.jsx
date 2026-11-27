@@ -50,10 +50,10 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
         )}
       </div>
 
-      <section className="card clickable" onClick={onEditProduct} title="눌러서 제품 정보 고치기">
+      <section className="card">
         <div className="row">
           <h3 className="card-title grow">제품 정보</h3>
-          <button type="button" className="btn sm ghost" onClick={(e) => { e.stopPropagation(); onEditProduct(); }}>수정</button>
+          <button type="button" className="btn sm ghost" onClick={onEditProduct}>수정</button>
         </div>
         <dl className="info-grid">
           <dt>유형</dt><dd>{product.type}</dd>

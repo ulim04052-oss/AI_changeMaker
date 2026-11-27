@@ -1,14 +1,13 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
-import MakerPicker from './MakerPicker.jsx';
-import { MAKERS, CHANNELS, KINDS, MATERIAL_KINDS, PRODUCT_COLORS, PRODUCT_TYPES, UNITS } from '../data/constants.js';
+import { CHANNELS, KINDS, MATERIAL_KINDS, PRODUCT_COLORS, PRODUCT_TYPES, UNITS } from '../data/constants.js';
 import { arrivals, full, mdw, stepsFromTemplate } from '../engine/dates.js';
 
 const initialForm = (templates) => ({
   name: '',
   type: PRODUCT_TYPES[0],
   channel: '올리브영',
-  maker: '코스맥스',
+  maker: '',
   launch: '2027-04-20',
   color: 'brown',
   gaps: { finishedN: 1, finishedUnit: '달', materialN: 2, materialUnit: '주' },
@@ -51,7 +50,6 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
   return (
     <Modal title="새 제품 추가" hint="상단 [+ 새 제품] 또는 제품 목록 맨 아래에서 열려요" onClose={onClose}>
       <datalist id="vendor-list">{vendors.map((v) => <option key={v} value={v} />)}</datalist>
-      <datalist id="maker-list">{MAKERS.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="channel-list">{CHANNELS.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="kind-list">{[...MATERIAL_KINDS, '용기', '캡'].map((v) => <option key={v} value={v} />)}</datalist>
       <div className="modal-body two-col">
@@ -72,7 +70,7 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
               </div>
 
               <label htmlFor="np-maker">제조사</label>
-              <MakerPicker id="np-maker" value={f.maker} onChange={(v) => set({ maker: v })} />
+              <input id="np-maker" className="input" value={f.maker} onChange={(e) => set({ maker: e.target.value })} placeholder="예: 코스맥스 / 화이트코스팜 (호수별로 다르면 같이 적어요)" />
 
               <label htmlFor="np-channel">유통</label>
               <input id="np-channel" className="input" list="channel-list" value={f.channel} onChange={(e) => set({ channel: e.target.value })} placeholder="예: 올리브영" />

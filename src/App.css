@@ -102,9 +102,7 @@ select.input { padding-right: 28px; }
 .switch-arrow { color: var(--muted); flex-shrink: 0; }
 .product-switch-name { flex-grow: 1; font-size: 16px; font-weight: 700; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-.card.clickable { cursor: pointer; }
-.card.clickable:hover { border-color: #B5B5AE; }
-.btn.ghost { border-color: transparent; color: var(--muted); height: 28px; padding: 0 8px; margin: -6px -6px -6px 0; }
+.btn.ghost { border-color: var(--line); color: var(--ink-2); height: 28px; padding: 0 8px; margin: -6px -6px -6px 0; }
 .card-title { font-size: 12px; font-weight: 700; color: var(--muted); }
 .info-grid { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 6px 8px; margin: 0; }
 .info-grid dt { color: var(--muted); }

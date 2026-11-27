@@ -10,7 +10,7 @@ export default function TemplateListDialog({ templates, onClose, onEdit, onNew }
               <div className="strong">{t.name}</div>
               <div className="muted small">{t.materialKind} · {t.steps.length ? `단계 ${t.steps.length}개` : '단계 없음'}</div>
             </div>
-            <button className="btn sm" onClick={() => onEdit(t)}>고치기</button>
+            <button className="btn sm" onClick={() => onEdit(t)}>수정</button>
           </div>
         ))}
       </div>

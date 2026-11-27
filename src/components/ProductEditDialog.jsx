@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
-import MakerPicker from './MakerPicker.jsx';
 import { CHANNELS, MATERIAL_KINDS, PRODUCT_COLORS, PRODUCT_TYPES, UNITS } from '../data/constants.js';
 import { arrivals, md, mdw, workdayDiff } from '../engine/dates.js';
 
@@ -51,7 +50,7 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
           </div>
 
           <label htmlFor="pe-maker">제조사</label>
-          <MakerPicker id="pe-maker" value={f.maker} onChange={(v) => set({ maker: v })} />
+          <input id="pe-maker" className="input" value={f.maker} onChange={(e) => set({ maker: e.target.value })} placeholder="예: 코스맥스 / 화이트코스팜 (호수별로 다르면 같이 적어요)" />
 
           <label htmlFor="pe-channel">유통</label>
           <input id="pe-channel" className="input" list="edit-channel-list" value={f.channel} onChange={(e) => set({ channel: e.target.value })} placeholder="예: 올리브영" />

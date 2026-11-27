@@ -21,13 +21,11 @@ export default function CalendarToolbar({ scope, setScope, vendor, setVendor, ve
         </label>
       </div>
       <div className="legend">
-        <b>{one ? '색 = 작업 유형' : '색 = 제품'}</b>
         {legend.map((l) => (
           <span key={l.key} className="legend-item" style={{ background: l.c.tint, color: l.c.ink }}>
             <span className="dot sm" style={{ background: l.c.dot }} />{l.name}
           </span>
         ))}
-        <span className="muted">{one ? '지금 쓰는 일러스트 달력과 같은 색 규칙' : '작업 유형은 색 없이 글자로만 표시'}</span>
       </div>
     </>
   );
