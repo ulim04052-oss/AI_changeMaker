@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
-import { CHANNELS, KINDS, MATERIAL_KINDS, PRODUCT_COLORS, PRODUCT_TYPES, UNITS } from '../data/constants.js';
+import MakerPicker from './MakerPicker.jsx';
+import { MAKERS, CHANNELS, KINDS, MATERIAL_KINDS, PRODUCT_COLORS, PRODUCT_TYPES, UNITS } from '../data/constants.js';
 import { arrivals, full, mdw, stepsFromTemplate } from '../engine/dates.js';
 
 const initialForm = (templates) => ({
   name: '',
   type: PRODUCT_TYPES[0],
   channel: '올리브영',
+  maker: '코스맥스',
   launch: '2027-04-20',
   color: 'brown',
   gaps: { finishedN: 1, finishedUnit: '달', materialN: 2, materialUnit: '주' },
@@ -49,6 +51,7 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
   return (
     <Modal title="새 제품 추가" hint="상단 [+ 새 제품] 또는 제품 목록 맨 아래에서 열려요" onClose={onClose}>
       <datalist id="vendor-list">{vendors.map((v) => <option key={v} value={v} />)}</datalist>
+      <datalist id="maker-list">{MAKERS.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="channel-list">{CHANNELS.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="kind-list">{[...MATERIAL_KINDS, '용기', '캡'].map((v) => <option key={v} value={v} />)}</datalist>
       <div className="modal-body two-col">
@@ -67,6 +70,9 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
                 <button type="button" className={'pill' + (customType ? ' on' : '')} onClick={() => set({ type: customType ? f.type : '' })}>+ 직접 입력</button>
                 {customType && <input className="input sm" value={f.type} onChange={(e) => set({ type: e.target.value })} placeholder="유형 이름" aria-label="제품 유형 직접 입력" />}
               </div>
+
+              <label htmlFor="np-maker">제조사</label>
+              <MakerPicker id="np-maker" value={f.maker} onChange={(v) => set({ maker: v })} />
 
               <label htmlFor="np-channel">유통</label>
               <input id="np-channel" className="input" list="channel-list" value={f.channel} onChange={(e) => set({ channel: e.target.value })} placeholder="예: 올리브영" />

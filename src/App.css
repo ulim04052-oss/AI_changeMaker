@@ -212,11 +212,21 @@ select.input { padding-right: 28px; }
 .empty h2 { font-size: 18px; }
 
 /* 창 (모달) */
-.overlay { position: fixed; inset: 0; background: rgba(40,40,36,.55); z-index: 50; overflow-y: auto; padding: 28px 16px; display: flex; justify-content: center; align-items: flex-start; }
-.modal { width: 100%; background: var(--surface); border-radius: 14px; box-shadow: 0 16px 48px rgba(0,0,0,.25); display: flex; flex-direction: column; }
+.overlay { position: fixed; inset: 0; background: rgba(40,40,36,.55); z-index: 50; overflow-y: auto; padding: 24px 16px; display: flex; justify-content: center; align-items: flex-start; }
+.modal { max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); width: 100%; background: var(--surface); border-radius: 14px; box-shadow: 0 16px 48px rgba(0,0,0,.25); display: flex; flex-direction: column; }
 .modal-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px 14px 24px; border-bottom: 1px solid #E6E6E1; }
 .modal-head h2 { font-size: 18px; }
-.modal-body { padding: 20px 24px; }
+.modal-head, .modal-foot { flex-shrink: 0; }
+.modal-body { padding: 20px 24px; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+.edit-left { flex: 1 1 460px; min-width: 0; }
+.edit-right { flex: 1 1 460px; min-width: 0; }
+.compact .input { height: 40px; }
+.compact .pill { height: 34px; }
+.compact .swatch { width: 32px; height: 32px; }
+.compact .form-grid { gap: 8px 12px; }
+.compact .arrival-row { padding: 8px 12px; }
+.compact .mat-row { grid-template-columns: 88px minmax(0, 1fr) minmax(0, 1.3fr) 40px; }
+.compact .mat-row .btn.icon { width: 40px; height: 40px; }
 .modal-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 24px; border-top: 1px solid #E6E6E1; }
 .two-col { display: flex; flex-wrap: wrap; gap: 24px; }
 .form-col { flex: 1 1 560px; min-width: 0; }

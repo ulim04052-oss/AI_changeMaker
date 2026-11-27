@@ -25,6 +25,7 @@ export const colorOf = (id) => PRODUCT_COLORS.find((c) => c.id === id) || PRODUC
 
 export const UNITS = ['영업일', '주', '달'];
 export const MATERIAL_KINDS = ['튜브', '라벨', '단상자'];
+export const MAKERS = ['코스맥스', '화이트코스팜'];
 export const CHANNELS = ['올리브영', '자사몰', '쿠팡', '무신사'];
 export const PRODUCT_TYPES = ['튜브형 핸드크림', '세니타이저'];
 

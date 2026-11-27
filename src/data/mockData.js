@@ -29,7 +29,7 @@ const DEFAULT_GAPS = { finishedN: 1, finishedUnit: '달', materialN: 2, material
 
 export const mockProducts = [
   {
-    id: 'p1', name: '타입넘버 핸드크림 10ml', type: '튜브형 핸드크림', channel: '올리브영', color: 'green',
+    id: 'p1', name: '타입넘버 핸드크림 10ml', type: '튜브형 핸드크림', channel: '올리브영', maker: '코스맥스', color: 'green',
     launch: '2027-03-16', finishedArrival: '2027-02-16', materialArrival: '2027-02-02', gaps: DEFAULT_GAPS,
     materials: [
       {
@@ -65,7 +65,7 @@ export const mockProducts = [
     ],
   },
   {
-    id: 'p2', name: '핸드크림 40ml', type: '튜브형 핸드크림', channel: '올리브영', color: 'purple',
+    id: 'p2', name: '핸드크림 40ml', type: '튜브형 핸드크림', channel: '올리브영', maker: '코스맥스', color: 'purple',
     launch: '2027-04-01', finishedArrival: '2027-02-26', materialArrival: '2027-02-12', gaps: DEFAULT_GAPS,
     materials: [
       {
@@ -83,7 +83,7 @@ export const mockProducts = [
     memos: [{ id: 'm3', text: '40ml 튜브 원단은 10ml와 같은 날 발주 검토', stepId: null }],
   },
   {
-    id: 'p3', name: '세니타이저 100ml', type: '세니타이저', channel: '올리브영', color: 'teal',
+    id: 'p3', name: '세니타이저 100ml', type: '세니타이저', channel: '올리브영', maker: '화이트코스팜', color: 'teal',
     launch: '2027-04-15', finishedArrival: '2027-03-15', materialArrival: '2027-02-26', gaps: DEFAULT_GAPS,
     materials: [
       {

@@ -57,6 +57,7 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
         </div>
         <dl className="info-grid">
           <dt>유형</dt><dd>{product.type}</dd>
+          <dt>제조사</dt><dd>{product.maker || <span className="muted">미정</span>}</dd>
           <dt>유통</dt><dd>{product.channel || <span className="muted">미정</span>}</dd>
           <dt>런칭일</dt><dd className="strong">{full(product.launch)}</dd>
           <dt>부자재 입고</dt><dd>{full(product.materialArrival)} <span className="muted small">자동 · 공통</span></dd>

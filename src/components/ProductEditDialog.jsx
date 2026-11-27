@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
+import MakerPicker from './MakerPicker.jsx';
 import { CHANNELS, MATERIAL_KINDS, PRODUCT_COLORS, PRODUCT_TYPES, UNITS } from '../data/constants.js';
 import { arrivals, md, mdw, workdayDiff } from '../engine/dates.js';
 
@@ -9,6 +10,7 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
     name: product.name,
     type: product.type,
     channel: product.channel || '',
+    maker: product.maker || '',
     color: product.color,
     launch: product.launch,
     gaps: { ...product.gaps },
@@ -29,11 +31,12 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
   const canSave = f.name.trim() && f.launch && f.materials.every((m) => m.kind.trim() && m.vendor.trim() && (m.id || m.templateId));
 
   return (
-    <Modal title="제품 정보 수정" hint={product.name} onClose={onClose} width={760}>
+    <Modal title="제품 정보 수정" hint={product.name} onClose={onClose} width={1120}>
       <datalist id="edit-vendor-list">{vendors.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="edit-channel-list">{CHANNELS.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="edit-kind-list">{[...MATERIAL_KINDS, '용기', '캡'].map((v) => <option key={v} value={v} />)}</datalist>
-      <div className="modal-body col gap20">
+      <div className="modal-body two-col compact">
+        <div className="col gap12 edit-left">
         <div className="form-grid">
           <label htmlFor="pe-name">제품명</label>
           <input id="pe-name" className="input" value={f.name} onChange={(e) => set({ name: e.target.value })} autoFocus />
@@ -46,6 +49,9 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
             <button type="button" className={'pill' + (customType ? ' on' : '')} onClick={() => set({ type: customType ? f.type : '' })}>+ 직접 입력</button>
             {customType && <input className="input sm" value={f.type} onChange={(e) => set({ type: e.target.value })} aria-label="제품 유형 직접 입력" />}
           </div>
+
+          <label htmlFor="pe-maker">제조사</label>
+          <MakerPicker id="pe-maker" value={f.maker} onChange={(v) => set({ maker: v })} />
 
           <label htmlFor="pe-channel">유통</label>
           <input id="pe-channel" className="input" list="edit-channel-list" value={f.channel} onChange={(e) => set({ channel: e.target.value })} placeholder="예: 올리브영" />
@@ -84,6 +90,9 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
           </div>
         )}
 
+        </div>
+
+        <div className="col gap12 edit-right">
         {arr && (
           <div className="col gap8">
             <div className="arrival-row">
@@ -113,9 +122,7 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
           </fieldset>
         )}
 
-        <div className="sep" />
-
-        <div className="col gap10">
+        <div className="col gap8">
           <h3 className="card-title">부자재 · 업체</h3>
           {f.materials.map((m, i) => (
             <div key={m.id || 'new' + i} className="mat-row">
@@ -140,6 +147,7 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
               {removed.map((m) => m.name).join(', ')}를 빼면 그 일정 {removed.reduce((n, m) => n + m.steps.length, 0)}개도 달력에서 사라져요.
             </div>
           )}
+        </div>
         </div>
       </div>
       <div className="modal-foot">
