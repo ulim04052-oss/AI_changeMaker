@@ -168,7 +168,7 @@ export default function App() {
       };
     });
     const p = {
-      id: pid, name: form.name, type: form.type, channel: form.channel.trim(), maker: form.maker.trim(), color: form.color, launch: form.launch,
+      id: pid, name: form.name, type: form.type, channel: form.channel.trim(), maker: form.maker.trim(), owner: form.owner.trim(), color: form.color, launch: form.launch,
       finishedArrival: arr.finished, materialArrival: arr.material, gaps: form.gaps, materials, memos: [],
     };
     setData((d) => ({
@@ -214,7 +214,7 @@ export default function App() {
     });
     const goneSteps = new Set(old.materials.filter((m) => !kept.has(m.id)).flatMap((m) => m.steps.map((s) => s.id)));
     updateProduct(pid, (p) => ({
-      ...p, name: form.name.trim(), type: form.type, channel: form.channel.trim(), maker: form.maker.trim(), color: form.color,
+      ...p, name: form.name.trim(), type: form.type, channel: form.channel.trim(), maker: form.maker.trim(), owner: form.owner.trim(), color: form.color,
       launch: form.launch, gaps: form.gaps, finishedArrival: arr.finished, materialArrival: arr.material, materials,
       memos: p.memos.map((m) => (goneSteps.has(m.stepId) ? { ...m, stepId: null } : m)),
     }));

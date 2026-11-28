@@ -55,7 +55,8 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
           <h3 className="card-title grow">제품 정보</h3>
           <button type="button" className="btn sm ghost" onClick={onEditProduct}>수정</button>
         </div>
-        <dl className="info-grid">
+        <dl className="info-grid bold-labels">
+          <dt>담당</dt><dd>{product.owner || <span className="muted">미정</span>}</dd>
           <dt>유형</dt><dd>{product.type}</dd>
           <dt>제조사</dt><dd>{product.maker || <span className="muted">미정</span>}</dd>
           <dt>유통</dt><dd>{product.channel || <span className="muted">미정</span>}</dd>

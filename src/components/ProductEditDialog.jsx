@@ -10,6 +10,7 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
     type: product.type,
     channel: product.channel || '',
     maker: product.maker || '',
+    owner: product.owner || '',
     color: product.color,
     launch: product.launch,
     gaps: { ...product.gaps },
@@ -39,6 +40,9 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
         <div className="form-grid">
           <label htmlFor="pe-name">제품명</label>
           <input id="pe-name" className="input" value={f.name} onChange={(e) => set({ name: e.target.value })} autoFocus />
+
+          <label htmlFor="pe-owner">담당</label>
+          <input id="pe-owner" className="input" value={f.owner} onChange={(e) => set({ owner: e.target.value })} placeholder="예: 배유림" />
 
           <span>제품 유형</span>
           <div className="row wrap gap6">

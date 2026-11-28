@@ -70,7 +70,7 @@ select.input { padding-right: 28px; }
   display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 20px;
   background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20;
 }
-.brand { font-weight: 700; font-size: 18px; margin-right: 12px; }
+.brand { font-weight: 700; font-size: 21px; margin-right: 12px; }
 .month-bar { display: flex; align-items: center; gap: 8px; }
 .month-nav { display: flex; align-items: center; gap: 4px; }
 .month-label { font-weight: 700; font-size: 18px; padding: 0 10px; min-width: 128px; text-align: center; }
@@ -108,6 +108,7 @@ select.input { padding-right: 28px; }
 .info-grid { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 6px 8px; margin: 0; }
 .info-grid dt { color: var(--muted); }
 .info-grid dd { margin: 0; }
+.info-grid.bold-labels dt { font-weight: 700; color: var(--ink-2); }
 .mat-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 .mat-list li { display: flex; align-items: center; gap: 8px; }
 .mat-list b { width: 52px; font-weight: 500; }

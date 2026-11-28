@@ -8,6 +8,7 @@ const initialForm = (templates) => ({
   type: PRODUCT_TYPES[0],
   channel: '올리브영',
   maker: '',
+  owner: '배유림',
   launch: '2027-04-20',
   color: 'brown',
   gaps: { finishedN: 1, finishedUnit: '달', materialN: 2, materialUnit: '주' },
@@ -59,6 +60,9 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
             <div className="form-grid">
               <label htmlFor="np-name">제품명</label>
               <input id="np-name" className="input" value={f.name} onChange={(e) => set({ name: e.target.value })} placeholder="예: 타입넘버 핸드크림 30ml" autoFocus />
+
+              <label htmlFor="np-owner">담당</label>
+              <input id="np-owner" className="input" value={f.owner} onChange={(e) => set({ owner: e.target.value })} placeholder="예: 배유림" />
 
               <span>제품 유형</span>
               <div className="row wrap gap6">
