@@ -1,6 +1,6 @@
 import { KINDS, KIND_ORDER, colorOf } from '../data/constants.js';
 
-export default function CalendarToolbar({ scope, setScope, vendor, setVendor, vendorOptions, products, center }) {
+export default function CalendarToolbar({ scope, setScope, vendor, setVendor, vendorOptions, products, center, right }) {
   const one = scope === 'one';
   const legend = one
     ? KIND_ORDER.map((k) => ({ key: k, name: KINDS[k].name, c: KINDS[k] }))
@@ -22,7 +22,7 @@ export default function CalendarToolbar({ scope, setScope, vendor, setVendor, ve
         </label>
         </div>
         <div className="toolbar-center">{center}</div>
-        <div className="toolbar-right" />
+        <div className="toolbar-right">{right}</div>
       </div>
       <div className="legend">
         {legend.map((l) => (
