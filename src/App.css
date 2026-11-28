@@ -71,7 +71,7 @@ select.input { padding-right: 28px; }
   background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20;
 }
 .brand { font-weight: 700; font-size: 18px; margin-right: 12px; }
-.month-bar { display: flex; align-items: center; gap: 8px; margin-bottom: -4px; }
+.month-bar { display: flex; align-items: center; gap: 8px; }
 .month-nav { display: flex; align-items: center; gap: 4px; }
 .month-label { font-weight: 700; font-size: 16px; padding: 0 10px; min-width: 128px; text-align: center; }
 .layout { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px 20px; align-items: flex-start; }
@@ -148,7 +148,13 @@ select.input { padding-right: 28px; }
 .detail-head input[type=date] { height: 40px; padding: 0 8px; border: 1px solid var(--ink); border-radius: 6px; }
 
 /* 달력 위 도구 */
-.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.toolbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.toolbar-left { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+@media (max-width: 1100px) {
+  .toolbar { grid-template-columns: 1fr; }
+  .toolbar-center { order: -1; display: flex; justify-content: center; }
+  .toolbar-right { display: none; }
+}
 .segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
 .segmented button { height: 40px; padding: 0 14px; border: 0; background: var(--surface); cursor: pointer; }
 .segmented button + button { border-left: 1px solid var(--line); }

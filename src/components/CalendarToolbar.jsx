@@ -1,6 +1,6 @@
 import { KINDS, KIND_ORDER, colorOf } from '../data/constants.js';
 
-export default function CalendarToolbar({ scope, setScope, vendor, setVendor, vendorOptions, products }) {
+export default function CalendarToolbar({ scope, setScope, vendor, setVendor, vendorOptions, products, center }) {
   const one = scope === 'one';
   const legend = one
     ? KIND_ORDER.map((k) => ({ key: k, name: KINDS[k].name, c: KINDS[k] }))
@@ -8,6 +8,7 @@ export default function CalendarToolbar({ scope, setScope, vendor, setVendor, ve
   return (
     <>
       <div className="toolbar">
+        <div className="toolbar-left">
         <div className="segmented" role="group" aria-label="보기 범위">
           <button className={one ? 'on' : ''} aria-pressed={one} onClick={() => setScope('one')}>이 제품만</button>
           <button className={!one ? 'on' : ''} aria-pressed={!one} onClick={() => setScope('all')}>전체 제품</button>
@@ -19,6 +20,9 @@ export default function CalendarToolbar({ scope, setScope, vendor, setVendor, ve
             {vendorOptions.map((v) => <option key={v} value={v}>{v}</option>)}
           </select>
         </label>
+        </div>
+        <div className="toolbar-center">{center}</div>
+        <div className="toolbar-right" />
       </div>
       <div className="legend">
         {legend.map((l) => (

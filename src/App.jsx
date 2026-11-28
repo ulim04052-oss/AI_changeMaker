@@ -393,8 +393,8 @@ export default function App() {
             setVendor={setVendor}
             vendorOptions={vendorOptions}
             products={visibleProducts}
+            center={<MonthNav view={view} onPrev={headerProps.onPrev} onNext={headerProps.onNext} onToday={headerProps.onToday} />}
           />
-          <MonthNav view={view} onPrev={headerProps.onPrev} onNext={headerProps.onNext} onToday={headerProps.onToday} />
           <MonthCalendar
             view={view}
             events={events}
