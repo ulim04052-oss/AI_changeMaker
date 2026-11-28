@@ -17,10 +17,11 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
 
   const rows = cur
     ? [
-        ...[...cur.steps].sort((a, b) => (a.date < b.date ? -1 : 1)).map((s) => ({ ...s, open: s.id })),
+        ...cur.steps.map((s) => ({ ...s, open: s.id })),
         { id: 'mat', name: '부자재 입고', kind: 'data', date: product.materialArrival, auto: true, open: `${product.id}:mat` },
+        { id: 'fin', name: '완제품 입고', kind: 'data', date: product.finishedArrival, auto: true, open: `${product.id}:fin` },
         { id: 'launch', name: '런칭', kind: 'launch', date: product.launch, bold: true, open: `${product.id}:launch` },
-      ]
+      ].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
     : [];
 
   return (

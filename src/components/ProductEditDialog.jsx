@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
 import TypePicker from './TypePicker.jsx';
-import { CHANNELS, MATERIAL_KINDS, PRODUCT_COLORS, UNITS } from '../data/constants.js';
+import { CHANNELS, PRODUCT_COLORS, UNITS } from '../data/constants.js';
 import { arrivals, md, mdw, workdayDiff } from '../engine/dates.js';
 
 // 제품 정보 칸을 누르면 뜨는 수정 창 (새 제품 추가와 같은 모양)
@@ -15,7 +15,7 @@ export default function ProductEditDialog({ product, templates, vendors, product
     color: product.color,
     launch: product.launch,
     gaps: { ...product.gaps },
-    materials: product.materials.map((m) => ({ id: m.id, kind: m.name, vendor: m.vendor, steps: m.steps.length })),
+    materials: product.materials.map((m) => ({ id: m.id, kind: m.name, vendor: m.vendor, steps: m.steps.length, templateId: templates.some((t) => t.id === m.templateId) ? m.templateId : undefined })),
     reschedule: 'arrivals',
   }));
   const [gapOpen, setGapOpen] = useState(false);
@@ -23,6 +23,12 @@ export default function ProductEditDialog({ product, templates, vendors, product
   const setGap = (patch) => setF((x) => ({ ...x, gaps: { ...x.gaps, ...patch } }));
   const setMat = (i, patch) => setF((x) => ({ ...x, materials: x.materials.map((m, j) => (j === i ? { ...m, ...patch } : m)) }));
 
+  // 부자재 종류 = 필요 일정에 등록된 종류들 (컨셉회의·개발회의처럼 직접 만든 것도 포함)
+  const kinds = [...new Set(templates.map((t) => t.materialKind).filter(Boolean))];
+  const templatesOf = (kind) => {
+    const same = templates.filter((t) => t.materialKind === kind);
+    return same.length ? same : templates;
+  };
   const arr = useMemo(() => (f.launch ? arrivals(f.launch, f.gaps) : null), [f.launch, f.gaps]);
   const datesChanged = arr && (arr.material !== product.materialArrival || arr.finished !== product.finishedArrival || f.launch !== product.launch);
   const shiftDays = arr ? workdayDiff(product.materialArrival, arr.material) : 0;
@@ -34,7 +40,6 @@ export default function ProductEditDialog({ product, templates, vendors, product
     <Modal title="제품 정보 수정" hint={product.name} onClose={onClose} width={1120}>
       <datalist id="edit-vendor-list">{vendors.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="edit-channel-list">{CHANNELS.map((v) => <option key={v} value={v} />)}</datalist>
-      <datalist id="edit-kind-list">{[...new Set([...MATERIAL_KINDS, '용기', '캡', ...templates.map((t) => t.materialKind)])].map((v) => <option key={v} value={v} />)}</datalist>
       <div className="modal-body two-col compact">
         <div className="col gap12 edit-left">
         <div className="form-grid">
@@ -126,23 +131,38 @@ export default function ProductEditDialog({ product, templates, vendors, product
 
         <div className="col gap8">
           <h3 className="card-title">부자재 · 업체</h3>
-          {f.materials.map((m, i) => (
+          {f.materials.map((m, i) => {
+            const orig = m.id && product.materials.find((x) => x.id === m.id);
+            const tplChanged = orig && m.templateId && m.templateId !== orig.templateId;
+            const cur = templates.find((t) => t.id === m.templateId);
+            const opts = templatesOf(m.kind).includes(cur) || !cur ? templatesOf(m.kind) : [cur, ...templatesOf(m.kind)];
+            return (
             <div key={m.id || 'new' + i} className="mat-row">
-              <input className="input strong" list="edit-kind-list" value={m.kind} onChange={(e) => setMat(i, { kind: e.target.value })} aria-label="부자재 종류" />
-              <input className="input" list="edit-vendor-list" value={m.vendor} onChange={(e) => setMat(i, { vendor: e.target.value })} aria-label="업체" placeholder="업체" />
               {m.id ? (
-                <span className="muted small">일정 {m.steps}개 · 그대로 유지</span>
+                <input className="input strong" value={m.kind} onChange={(e) => setMat(i, { kind: e.target.value })} aria-label="부자재 종류" />
               ) : (
-                <select className="input" value={m.templateId} onChange={(e) => setMat(i, { templateId: e.target.value, kind: templates.find((x) => x.id === e.target.value)?.materialKind || m.kind })} aria-label="필요 일정">
-                  {templates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                <select className="input strong" value={m.kind} aria-label="부자재 종류"
+                  onChange={(e) => setMat(i, { kind: e.target.value, templateId: templatesOf(e.target.value)[0]?.id })}>
+                  {kinds.map((k) => <option key={k} value={k}>{k}</option>)}
                 </select>
               )}
+              <input className="input" list="edit-vendor-list" value={m.vendor} onChange={(e) => setMat(i, { vendor: e.target.value })} aria-label="업체" placeholder="업체 (없으면 비워도 돼요)" />
+              <select className="input" value={m.templateId || ''} onChange={(e) => setMat(i, { templateId: e.target.value || undefined })} aria-label="필요 일정">
+                {m.id && !templates.some((t) => t.id === orig.templateId) && <option value="">지금 일정 그대로 ({m.steps}개)</option>}
+                {opts.map((t) => <option key={t.id} value={t.id}>{t.name} · {t.steps.length ? `단계 ${t.steps.length}개` : '단계 없음'}</option>)}
+              </select>
               <button type="button" className="btn icon" aria-label="이 부자재 빼기" onClick={() => set({ materials: f.materials.filter((_, j) => j !== i) })}>×</button>
+              {m.id && (
+                <span className={'mat-note small' + (tplChanged ? ' warn' : ' muted')}>
+                  {tplChanged ? `저장하면 이 필요 일정으로 다시 계산돼요 (지금 일정 ${m.steps}개)` : `일정 ${m.steps}개 · 그대로 유지`}
+                </span>
+              )}
             </div>
-          ))}
+            );
+          })}
           <button
             type="button" className="btn dashed strong" style={{ alignSelf: 'flex-start' }}
-            onClick={() => set({ materials: [...f.materials, { kind: '단상자', vendor: '', templateId: templates.find((t) => t.materialKind === '단상자')?.id || templates[0]?.id }] })}
+            onClick={() => set({ materials: [...f.materials, { kind: kinds[0], vendor: '', templateId: templatesOf(kinds[0])[0]?.id }] })}
           >+ 부자재 추가</button>
           {removed.length > 0 && (
             <div className="danger-box">

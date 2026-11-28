@@ -308,3 +308,5 @@ select.input { padding-right: 28px; }
 .type-pill.on .type-x:hover { color: #fff; }
 .gap-box .gap-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex-basis: 100%; }
 .gap-box .gap-name { width: 76px; font-weight: 700; }
+.mat-row > .mat-note { grid-column: 1 / -1; margin-top: -4px; padding-left: 4px; }
+.mat-row > .mat-note.warn { color: var(--ask-ink); }

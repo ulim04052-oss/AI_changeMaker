@@ -250,10 +250,18 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
     const fixed = { 런칭: form.launch, '완제품 입고': arr.finished, '부자재 입고': arr.material };
     const delta = form.reschedule === 'shift' ? workdayDiff(old.materialArrival, arr.material) : 0;
     const kept = new Set();
+    const goneIds = new Set();
     const materials = form.materials.map((row) => {
       if (row.id) {
         kept.add(row.id);
         const m = old.materials.find((x) => x.id === row.id);
+        // 필요 일정을 다른 것으로 바꿨으면, 그 필요 일정대로 다시 계산
+        if (row.templateId && row.templateId !== m.templateId) {
+          const t = data.templates.find((x) => x.id === row.templateId);
+          const r = recomputeMaterial({ ...old, launch: form.launch, finishedArrival: arr.finished, materialArrival: arr.material }, m, t, () => uid('s'));
+          r.removed.forEach((s) => goneIds.add(s.id));
+          return { ...m, name: row.kind.trim(), vendor: (row.vendor || '').trim(), templateId: t.id, templateName: t.name, steps: r.steps };
+        }
         return {
           ...m, name: row.kind.trim(), vendor: row.vendor.trim(),
           steps: delta === 0 ? m.steps : m.steps.map((s) => {
@@ -268,7 +276,7 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
         steps: stepsFromTemplate(t, fixed).map((s) => ({ id: uid('s'), name: s.name, kind: s.kind, date: s.date, rule: s.rule, changes: [] })),
       };
     });
-    const goneSteps = new Set(old.materials.filter((m) => !kept.has(m.id)).flatMap((m) => m.steps.map((s) => s.id)));
+    const goneSteps = new Set([...goneIds, ...old.materials.filter((m) => !kept.has(m.id)).flatMap((m) => m.steps.map((s) => s.id))]);
     updateProduct(pid, (p) => ({
       ...p, name: form.name.trim(), type: form.type, channel: form.channel.trim(), maker: form.maker.trim(), owner: form.owner.trim(), color: form.color,
       launch: form.launch, gaps: form.gaps, finishedArrival: arr.finished, materialArrival: arr.material, materials,

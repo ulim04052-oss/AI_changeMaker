@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
 import TypePicker from './TypePicker.jsx';
-import { CHANNELS, KINDS, MATERIAL_KINDS, PRODUCT_COLORS, UNITS } from '../data/constants.js';
+import { CHANNELS, KINDS, PRODUCT_COLORS, UNITS } from '../data/constants.js';
 import { arrivals, full, mdw, stepsFromTemplate } from '../engine/dates.js';
 
 const initialForm = (templates, types) => ({
@@ -22,6 +22,11 @@ const initialForm = (templates, types) => ({
 export default function NewProductDialog({ templates, vendors, productTypes, onTypesChange, onClose, onCreate, onNewTemplate, draft }) {
   const [f, setF] = useState(() => draft || initialForm(templates, productTypes));
   const [gapOpen, setGapOpen] = useState(false);
+  const kinds = [...new Set(templates.map((t) => t.materialKind).filter(Boolean))];
+  const templatesOf = (kind) => {
+    const same = templates.filter((t) => t.materialKind === kind);
+    return same.length ? same : templates;
+  };
   const set = (patch) => setF((x) => ({ ...x, ...patch }));
   const setGap = (patch) => setF((x) => ({ ...x, gaps: { ...x.gaps, ...patch } }));
   const setMat = (i, patch) => setF((x) => ({ ...x, materials: x.materials.map((m, j) => (j === i ? { ...m, ...patch } : m)) }));
@@ -52,7 +57,6 @@ export default function NewProductDialog({ templates, vendors, productTypes, onT
     <Modal title="새 제품 추가" hint="상단 [+ 새 제품] 또는 제품 목록 맨 아래에서 열려요" onClose={onClose}>
       <datalist id="vendor-list">{vendors.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="channel-list">{CHANNELS.map((v) => <option key={v} value={v} />)}</datalist>
-      <datalist id="kind-list">{[...new Set([...MATERIAL_KINDS, '용기', '캡', ...templates.map((t) => t.materialKind)])].map((v) => <option key={v} value={v} />)}</datalist>
       <div className="modal-body two-col">
         <div className="col gap20 form-col">
           <div className="col gap12">
@@ -138,13 +142,16 @@ export default function NewProductDialog({ templates, vendors, productTypes, onT
               const t = templates.find((x) => x.id === m.templateId);
               return (
                 <div key={i} className="mat-row">
-                  <input className="input strong" list="kind-list" value={m.kind} onChange={(e) => setMat(i, { kind: e.target.value })} aria-label="부자재 종류" />
+                  <select className="input strong" value={m.kind} aria-label="부자재 종류"
+                    onChange={(e) => setMat(i, { kind: e.target.value, templateId: templatesOf(e.target.value)[0]?.id })}>
+                    {(kinds.includes(m.kind) ? kinds : [m.kind, ...kinds]).map((k) => <option key={k} value={k}>{k}</option>)}
+                  </select>
                   <input className="input" list="vendor-list" value={m.vendor} onChange={(e) => setMat(i, { vendor: e.target.value })} aria-label="업체 (목록에서 고르거나 새로 입력)" placeholder="업체" />
                   <select
                     className="input" value={m.templateId || ''} aria-label="필요 일정"
                     onChange={(e) => (e.target.value === '__new' ? onNewTemplate(f) : setMat(i, { templateId: e.target.value, kind: templates.find((x) => x.id === e.target.value)?.materialKind || m.kind }))}
                   >
-                    {templates.map((x) => (
+                    {(templatesOf(m.kind).includes(t) || !t ? templatesOf(m.kind) : [t, ...templatesOf(m.kind)]).map((x) => (
                       <option key={x.id} value={x.id}>{x.name} · {x.steps.length ? `단계 ${x.steps.length}개` : '단계 없음'}</option>
                     ))}
                     <option value="__new">+ 새 필요 일정 만들기</option>
@@ -157,7 +164,7 @@ export default function NewProductDialog({ templates, vendors, productTypes, onT
             <div className="row wrap gap8">
               <button
                 type="button" className="btn dashed strong"
-                onClick={() => set({ materials: [...f.materials, { kind: '단상자', vendor: '', templateId: templates.find((t) => t.materialKind === '단상자')?.id || templates[0]?.id }] })}
+                onClick={() => set({ materials: [...f.materials, { kind: kinds[0], vendor: '', templateId: templatesOf(kinds[0])[0]?.id }] })}
               >+ 부자재 추가</button>
               <span className="muted small">업체 칸은 목록에서 고르거나 새 이름을 바로 적으면 돼요</span>
             </div>
