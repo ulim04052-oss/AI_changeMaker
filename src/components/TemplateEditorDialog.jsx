@@ -27,7 +27,7 @@ export default function TemplateEditorDialog({ template, onClose, onSave }) {
   };
 
   return (
-    <Modal title="필요 일정 만들기" hint="새 제품 화면의 [+ 새 필요 일정] 또는 설정 › 필요 일정 관리에서 열려요" onClose={onClose}>
+    <Modal title="필요 일정 만들기" hint="새 제품 화면의 [+ 새 필요 일정] 또는 설정 › 부자재 필요 일정 관리에서 열려요" onClose={onClose}>
       <div className="modal-body two-col">
         <div className="col gap20 form-col wide">
           <div className="form-grid">

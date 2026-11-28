@@ -11,7 +11,7 @@
 
 var TABS = {
   products: { name: '제품', headers: ['id', '제품명', '담당', '유형', '제조사', '유통', '런칭일', '부자재 입고', '완제품 입고', '색', '입고 간격'] },
-  materials: { name: '부자재', headers: ['id', '제품 id', '부자재', '업체', '필요 일정', '제품명(참고)'] },
+  materials: { name: '부자재', headers: ['id', '제품 id', '부자재', '업체', '필요 일정', '제품명(참고)', '필요 일정 id'] },
   steps: { name: '일정', headers: ['id', '제품 id', '부자재 id', '단계', '작업 유형', '날짜', '규칙', '변경 기록', '제품명(참고)', '부자재(참고)'] },
   memos: { name: '이슈 메모', headers: ['id', '제품 id', '연결 일정 id', '내용', '제품명(참고)'] },
   templates: { name: '필요 일정', headers: ['id', '이름', '부자재 종류', '단계(JSON)'] },
@@ -57,7 +57,7 @@ function getData() {
         gaps: parseJson_(r[10], { finishedN: 1, finishedUnit: '달', materialN: 2, materialUnit: '주' }),
         materials: materials.filter(function (m) { return m[1] === pid; }).map(function (m) {
           return {
-            id: m[0], name: m[2], vendor: m[3], templateName: m[4],
+            id: m[0], name: m[2], vendor: m[3], templateName: m[4], templateId: m[6] || null,
             steps: steps.filter(function (s) { return s[2] === m[0]; }).map(function (s) {
               return {
                 id: s[0], name: s[3], kind: kindByName[s[4]] || s[4] || 'meet', date: s[5], rule: s[6],
@@ -97,7 +97,7 @@ function saveData(json, baseRevision) {
     (d.products || []).forEach(function (p) {
       P.push([p.id, p.name, p.owner || '', p.type || '', p.maker || '', p.channel || '', p.launch, p.materialArrival, p.finishedArrival, p.color || '', JSON.stringify(p.gaps || {})]);
       (p.materials || []).forEach(function (m) {
-        M.push([m.id, p.id, m.name, m.vendor, m.templateName || '', p.name]);
+        M.push([m.id, p.id, m.name, m.vendor, m.templateName || '', p.name, m.templateId || '']);
         (m.steps || []).forEach(function (s) {
           S.push([s.id, p.id, m.id, s.name, KIND_NAMES[s.kind] || s.kind, s.date, s.rule || '', (s.changes || []).join('\n'), p.name, m.name]);
         });
@@ -149,6 +149,7 @@ function readRows_(key) {
 function writeRows_(key, rows) {
   var sh = sheet_(key);
   var width = TABS[key].headers.length;
+  sh.getRange(1, 1, 1, width).setValues([TABS[key].headers]); // 칸이 새로 생겼을 때 제목 줄도 맞춰요
   var last = sh.getLastRow();
   if (last >= 2) sh.getRange(2, 1, last - 1, width).clearContent();
   if (!rows.length) return;

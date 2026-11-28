@@ -17,6 +17,8 @@ import ProductEditDialog from './components/ProductEditDialog.jsx';
 import TemplateEditorDialog from './components/TemplateEditorDialog.jsx';
 import TemplateListDialog from './components/TemplateListDialog.jsx';
 import ImportConfirmDialog from './components/ImportConfirmDialog.jsx';
+import ApplyTemplateDialog from './components/ApplyTemplateDialog.jsx';
+import { applyCandidates, recomputeMaterial } from './engine/applyTemplate.js';
 
 const uid = (p) => p + Math.random().toString(36).slice(2, 8);
 const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
@@ -214,7 +216,7 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
     const materials = form.materials.map((row) => {
       const t = data.templates.find((x) => x.id === row.templateId);
       return {
-        id: uid(pid + '-'), name: row.kind, vendor: row.vendor, templateName: t.name,
+        id: uid(pid + '-'), name: row.kind, vendor: row.vendor, templateId: t.id, templateName: t.name,
         steps: stepsFromTemplate(t, fixed).map((s) => ({
           id: uid('s'), name: s.name, kind: s.kind, date: s.date, rule: s.rule, changes: [],
         })),
@@ -261,7 +263,7 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
       }
       const t = data.templates.find((x) => x.id === row.templateId);
       return {
-        id: uid(pid + '-'), name: row.kind.trim(), vendor: row.vendor.trim(), templateName: t.name,
+        id: uid(pid + '-'), name: row.kind.trim(), vendor: row.vendor.trim(), templateId: t.id, templateName: t.name,
         steps: stepsFromTemplate(t, fixed).map((s) => ({ id: uid('s'), name: s.name, kind: s.kind, date: s.date, rule: s.rule, changes: [] })),
       };
     });
@@ -283,8 +285,42 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
       const exists = d.templates.some((t) => t.id === tpl.id);
       return { ...d, templates: exists ? d.templates.map((t) => (t.id === tpl.id ? tpl : t)) : [...d.templates, tpl] };
     });
+    const candidates = applyCandidates(products, tpl);
+    if (candidates.length) {
+      setDialog({ type: 'applyTemplate', template: tpl, returnTo });
+      return;
+    }
     setDialog(returnTo || null);
     showToast(`"${tpl.name}" 필요 일정을 저장했어요. 새로 만드는 제품부터 적용돼요.`);
+  };
+
+  // 수정한 필요 일정을 고른 제품의 부자재에 반영
+  const applyTemplate = (tpl, materialIds, returnTo) => {
+    const before = data;
+    const pick = new Set(materialIds);
+    setData((d) => ({
+      ...d,
+      products: d.products.map((p) => {
+        if (!p.materials.some((m) => pick.has(m.id))) return p;
+        const gone = new Set();
+        const materials = p.materials.map((m) => {
+          if (!pick.has(m.id)) return m;
+          const r = recomputeMaterial(p, m, tpl, () => uid('s'));
+          r.removed.forEach((s) => gone.add(s.id));
+          return { ...m, templateId: tpl.id, templateName: tpl.name, steps: r.steps };
+        });
+        return { ...p, materials, memos: p.memos.map((n) => (gone.has(n.stepId) ? { ...n, stepId: null } : n)) };
+      }),
+    }));
+    setDetailId(null);
+    setDialog(returnTo || null);
+    showToast(`"${tpl.name}"을 ${materialIds.length}곳에 반영했어요.`, before);
+  };
+
+  const deleteTemplate = (tpl) => {
+    const before = data;
+    setData((d) => ({ ...d, templates: d.templates.filter((t) => t.id !== tpl.id) }));
+    showToast(`"${tpl.name}" 필요 일정을 지웠어요.`, before);
   };
 
   // ---------- 백업 ----------
@@ -361,6 +397,8 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
       {dialog?.type === 'templates' && (
         <TemplateListDialog
           templates={data.templates}
+          usage={Object.fromEntries(data.templates.map((t) => [t.id, products.reduce((n, p) => n + p.materials.filter((m) => m.templateId === t.id).length, 0)]))}
+          onDelete={deleteTemplate}
           onClose={() => setDialog(null)}
           onEdit={(t) => setDialog({ type: 'template', template: t, returnTo: { type: 'templates' } })}
           onNew={() => setDialog({ type: 'template', template: null, returnTo: { type: 'templates' } })}
@@ -371,6 +409,14 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
           template={dialog.template}
           onClose={() => setDialog(dialog.returnTo || null)}
           onSave={(t) => saveTemplate(t, dialog.returnTo)}
+        />
+      )}
+      {dialog?.type === 'applyTemplate' && (
+        <ApplyTemplateDialog
+          template={dialog.template}
+          candidates={applyCandidates(products, dialog.template)}
+          onSkip={() => { setDialog(dialog.returnTo || null); showToast(`"${dialog.template.name}" 필요 일정을 저장했어요. 새로 만드는 제품부터 적용돼요.`); }}
+          onApply={(ids) => applyTemplate(dialog.template, ids, dialog.returnTo)}
         />
       )}
       {dialog?.type === 'import' && (

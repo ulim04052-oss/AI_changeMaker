@@ -18,7 +18,7 @@ export default function Header({
         </button>
         {settingsOpen && (
           <div className="menu settings-menu" role="menu">
-            <button role="menuitem" className="menu-item" onClick={onTemplates}>필요 일정 관리</button>
+            <button role="menuitem" className="menu-item" onClick={onTemplates}>부자재 필요 일정 관리</button>
             <button role="menuitem" className="menu-item" disabled>업체 목록 <span className="soon">준비 중</span></button>
             <button role="menuitem" className="menu-item" disabled>보관한 제품 <span className="soon">준비 중</span></button>
             <div className="menu-sep" />

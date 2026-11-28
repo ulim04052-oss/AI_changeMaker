@@ -33,7 +33,7 @@ export const mockProducts = [
     launch: '2027-03-16', finishedArrival: '2027-02-16', materialArrival: '2027-02-02', gaps: DEFAULT_GAPS,
     materials: [
       {
-        id: 'p1-tube', name: '튜브', vendor: 'KBI', templateName: '튜브 필요 일정 · 양산 7주',
+        id: 'p1-tube', templateId: 'tpl-tube', name: '튜브', vendor: 'KBI', templateName: '튜브 필요 일정 · 양산 7주',
         steps: [
           { id: 's1', name: '개발회의', kind: 'meet', date: '2026-12-01', rule: '시안 확정 보고 1영업일 전', changes: [] },
           { id: 's2', name: '시안 확정 보고', kind: 'meet', date: '2026-12-02', rule: 'CT 6영업일 전', changes: [] },
@@ -43,7 +43,7 @@ export const mockProducts = [
         ],
       },
       {
-        id: 'p1-label', name: '라벨', vendor: 'A업체', templateName: '라벨 필요 일정 · 기간 미정',
+        id: 'p1-label', templateId: 'tpl-label', name: '라벨', vendor: 'A업체', templateName: '라벨 필요 일정 · 기간 미정',
         steps: [
           { id: 's6', name: '라벨 시안 공유', kind: 'meet', date: '2026-12-08', rule: '인쇄 발주 2주 전', changes: [] },
           { id: 's7', name: '컬러 샘플 요청', kind: 'sample', date: '2026-12-09', rule: '직접 추가한 일정', changes: [] },
@@ -52,7 +52,7 @@ export const mockProducts = [
         ],
       },
       {
-        id: 'p1-box', name: '단상자', vendor: 'B업체', templateName: '단상자 필요 일정 · 기간 미정',
+        id: 'p1-box', templateId: 'tpl-box', name: '단상자', vendor: 'B업체', templateName: '단상자 필요 일정 · 기간 미정',
         steps: [
           { id: 's10', name: '데이터 아웃', kind: 'data', date: '2026-12-18', rule: '직접 추가한 일정', changes: [] },
           { id: 's11', name: '인쇄 발주', kind: 'mold', date: '2026-12-29', rule: '직접 추가한 일정', changes: [] },
@@ -69,14 +69,14 @@ export const mockProducts = [
     launch: '2027-04-01', finishedArrival: '2027-02-26', materialArrival: '2027-02-12', gaps: DEFAULT_GAPS,
     materials: [
       {
-        id: 'p2-tube', name: '튜브', vendor: 'KBI', templateName: '튜브 필요 일정 · 양산 7주',
+        id: 'p2-tube', templateId: 'tpl-tube', name: '튜브', vendor: 'KBI', templateName: '튜브 필요 일정 · 양산 7주',
         steps: [
           { id: 's12', name: '데이터 아웃', kind: 'data', date: '2026-12-04', rule: '원단 발주 2영업일 전', changes: [] },
           { id: 's13', name: '원단 발주', kind: 'mold', date: '2026-12-24', rule: '부자재 입고 7주 전', changes: [] },
         ],
       },
       {
-        id: 'p2-label', name: '라벨', vendor: 'C업체', templateName: '라벨 필요 일정 · 기간 미정',
+        id: 'p2-label', templateId: 'tpl-label', name: '라벨', vendor: 'C업체', templateName: '라벨 필요 일정 · 기간 미정',
         steps: [{ id: 's14', name: '라벨 발주', kind: 'mold', date: '2026-12-16', rule: '직접 추가한 일정', changes: [] }],
       },
     ],
@@ -87,7 +87,7 @@ export const mockProducts = [
     launch: '2027-04-15', finishedArrival: '2027-03-15', materialArrival: '2027-02-26', gaps: DEFAULT_GAPS,
     materials: [
       {
-        id: 'p3-bottle', name: '용기', vendor: 'D업체', templateName: '세니타이저 용기 필요 일정 · 기간 미정',
+        id: 'p3-bottle', templateId: 'tpl-sanitizer', name: '용기', vendor: 'D업체', templateName: '세니타이저 용기 필요 일정 · 기간 미정',
         steps: [
           { id: 's15', name: '펌프 시안 보고', kind: 'meet', date: '2026-12-03', rule: '직접 추가한 일정', changes: [] },
           { id: 's16', name: '펌프 샘플 요청', kind: 'sample', date: '2026-12-21', rule: '직접 추가한 일정', changes: [] },
