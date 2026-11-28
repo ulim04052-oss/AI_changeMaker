@@ -8,6 +8,11 @@ import MemoItem from './MemoItem.jsx';
 export default function TaskDetail({ ev, product, onBack, onMove, onAddMemo, onEditMemo, onDeleteMemo }) {
   const [editingDate, setEditingDate] = useState(false);
   const [composing, setComposing] = useState(false);
+  const [draftDate, setDraftDate] = useState(ev.date);
+  const commitDate = () => {
+    if (draftDate && draftDate !== ev.date) onMove(draftDate);
+    setEditingDate(false);
+  };
   const kind = KINDS[ev.kind];
   const memos = product.memos.filter((m) => m.stepId === ev.id);
 
@@ -30,19 +35,28 @@ export default function TaskDetail({ ev, product, onBack, onMove, onAddMemo, onE
           <dt>날짜</dt>
           <dd>
             {editingDate && ev.editable ? (
-              <input
-                type="date"
-                defaultValue={ev.date}
-                autoFocus
-                onChange={(e) => { if (e.target.value) { onMove(e.target.value); setEditingDate(false); } }}
-                onBlur={() => setEditingDate(false)}
-                aria-label="새 날짜"
-              />
+              // 달력에서 화살표로 달을 넘기면 브라우저가 값을 바로 바꿔버려서,
+              // 고른 날짜는 '적용'을 눌러야 반영되게 했어요.
+              <span className="row gap8 wrap">
+                <input
+                  type="date"
+                  value={draftDate}
+                  autoFocus
+                  onChange={(e) => setDraftDate(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitDate();
+                    if (e.key === 'Escape') { e.stopPropagation(); setEditingDate(false); }
+                  }}
+                  aria-label="새 날짜"
+                />
+                <button className="btn sm primary" onClick={commitDate} disabled={!draftDate || draftDate === ev.date}>적용</button>
+                <button className="btn sm" onClick={() => setEditingDate(false)}>취소</button>
+              </span>
             ) : (
               <span className="row gap8 wrap">
                 <b>{full(ev.date)}</b>
                 {ev.editable ? (
-                  <button className="btn sm" onClick={() => setEditingDate(true)}>날짜 바꾸기</button>
+                  <button className="btn sm" onClick={() => { setDraftDate(ev.date); setEditingDate(true); }}>날짜 바꾸기</button>
                 ) : (
                   <span className="tag">{ev.auto ? '자동 계산' : '기준일'}</span>
                 )}
