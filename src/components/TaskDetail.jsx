@@ -58,7 +58,7 @@ export default function TaskDetail({ ev, product, onBack, onMove, onAddMemo, onE
                 {ev.editable ? (
                   <button className="btn sm" onClick={() => { setDraftDate(ev.date); setEditingDate(true); }}>날짜 바꾸기</button>
                 ) : (
-                  <span className="tag">{ev.auto ? '자동 계산' : '기준일'}</span>
+                  <span className="tag">{ev.manual ? '직접 고름' : ev.auto ? '자동 계산' : '기준일'}</span>
                 )}
               </span>
             )}
@@ -67,7 +67,7 @@ export default function TaskDetail({ ev, product, onBack, onMove, onAddMemo, onE
           <dt>필요 일정</dt><dd>{ev.rule}</dd>
         </dl>
         {!ev.editable && (
-          <div className="muted small">이 날짜는 런칭일에서 자동으로 계산돼요. 런칭일 바꾸기는 다음 단계에서 붙여요.</div>
+          <div className="muted small">{ev.manual ? '이 날짜는 제품 정보 [수정]에서 바꿀 수 있어요.' : '이 날짜는 런칭일에서 자동으로 계산돼요. 런칭일은 제품 정보 [수정]에서 바꿀 수 있어요.'}</div>
         )}
       </section>
 

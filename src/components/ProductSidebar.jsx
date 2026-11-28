@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { KINDS, colorOf } from '../data/constants.js';
+import { useState, Fragment } from 'react';
+import { KINDS, colorOf, MEETINGS } from '../data/constants.js';
 import { full, mdw } from '../engine/dates.js';
 import { productEvents } from '../data/selectors.js';
 import MemoComposer from './MemoComposer.jsx';
@@ -62,6 +62,9 @@ export default function ProductSidebar({ product, products, onSelect, onNewProdu
           <dt>제조사</dt><dd>{product.maker || <span className="muted">미정</span>}</dd>
           <dt>유통</dt><dd>{product.channel || <span className="muted">미정</span>}</dd>
           <dt>런칭일</dt><dd className="strong">{full(product.launch)}</dd>
+          {MEETINGS.filter((n) => product.meetings?.[n]).map((n) => (
+            <Fragment key={n}><dt>{n}</dt><dd>{full(product.meetings[n])}</dd></Fragment>
+          ))}
           <dt>부자재 입고</dt><dd>{full(product.materialArrival)} <span className="muted small">자동 · 공통</span></dd>
           <dt>완제품 입고</dt><dd>{full(product.finishedArrival)} <span className="muted small">자동 계산</span></dd>
         </dl>

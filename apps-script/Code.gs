@@ -10,7 +10,7 @@
  */
 
 var TABS = {
-  products: { name: '제품', headers: ['id', '제품명', '담당', '유형', '제조사', '유통', '런칭일', '부자재 입고', '완제품 입고', '색', '입고 간격'] },
+  products: { name: '제품', headers: ['id', '제품명', '담당', '유형', '제조사', '유통', '런칭일', '부자재 입고', '완제품 입고', '색', '입고 간격', '회의 날짜'] },
   materials: { name: '부자재', headers: ['id', '제품 id', '부자재', '업체', '필요 일정', '제품명(참고)', '필요 일정 id'] },
   steps: { name: '일정', headers: ['id', '제품 id', '부자재 id', '단계', '작업 유형', '날짜', '규칙', '변경 기록', '제품명(참고)', '부자재(참고)'] },
   memos: { name: '이슈 메모', headers: ['id', '제품 id', '연결 일정 id', '내용', '제품명(참고)'] },
@@ -55,6 +55,7 @@ function getData() {
         id: pid, name: r[1], owner: r[2], type: r[3], maker: r[4], channel: r[5],
         launch: r[6], materialArrival: r[7], finishedArrival: r[8], color: r[9] || 'green',
         gaps: parseJson_(r[10], { finishedN: 1, finishedUnit: '달', materialN: 2, materialUnit: '주' }),
+        meetings: parseJson_(r[11], {}),
         materials: materials.filter(function (m) { return m[1] === pid; }).map(function (m) {
           return {
             id: m[0], name: m[2], vendor: m[3], templateName: m[4], templateId: m[6] || null,
@@ -96,7 +97,7 @@ function saveData(json, baseRevision) {
     var d = JSON.parse(json);
     var P = [], M = [], S = [], N = [];
     (d.products || []).forEach(function (p) {
-      P.push([p.id, p.name, p.owner || '', p.type || '', p.maker || '', p.channel || '', p.launch, p.materialArrival, p.finishedArrival, p.color || '', JSON.stringify(p.gaps || {})]);
+      P.push([p.id, p.name, p.owner || '', p.type || '', p.maker || '', p.channel || '', p.launch, p.materialArrival, p.finishedArrival, p.color || '', JSON.stringify(p.gaps || {}), JSON.stringify(p.meetings || {})]);
       (p.materials || []).forEach(function (m) {
         M.push([m.id, p.id, m.name, m.vendor, m.templateName || '', p.name, m.templateId || '']);
         (m.steps || []).forEach(function (s) {

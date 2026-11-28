@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
 import TypePicker from './TypePicker.jsx';
-import { CHANNELS, PRODUCT_COLORS, UNITS } from '../data/constants.js';
+import { CHANNELS, MEETINGS, PRODUCT_COLORS, UNITS } from '../data/constants.js';
 import { arrivals, md, mdw, workdayDiff } from '../engine/dates.js';
 
 // 제품 정보 칸을 누르면 뜨는 수정 창 (새 제품 추가와 같은 모양)
@@ -16,6 +16,7 @@ export default function ProductEditDialog({ product, templates, vendors, product
     launch: product.launch,
     gaps: { ...product.gaps },
     materials: product.materials.map((m) => ({ id: m.id, kind: m.name, vendor: m.vendor, steps: m.steps.length, templateId: templates.some((t) => t.id === m.templateId) ? m.templateId : undefined })),
+    meetings: { ...(product.meetings || {}) },
     reschedule: 'arrivals',
   }));
   const [gapOpen, setGapOpen] = useState(false);
@@ -100,6 +101,22 @@ export default function ProductEditDialog({ product, templates, vendors, product
         </div>
 
         <div className="col gap12 edit-right">
+        <div className="col gap8">
+          {MEETINGS.map((n) => (
+            <div key={n} className="arrival-row">
+              <span className="arrival-name">{n}</span>
+              <input
+                type="date" className="input sm" value={f.meetings[n] || ''} aria-label={`${n} 날짜`}
+                onChange={(e) => setF((x) => ({ ...x, meetings: { ...x.meetings, [n]: e.target.value } }))}
+              />
+              {f.meetings[n] ? (
+                <button type="button" className="btn sm" onClick={() => setF((x) => ({ ...x, meetings: { ...x.meetings, [n]: '' } }))}>날짜 지우기</button>
+              ) : (
+                <span className="muted small">날짜를 고르면 달력에 생겨요</span>
+              )}
+            </div>
+          ))}
+        </div>
         {arr && (
           <div className="col gap8">
             <div className="arrival-row">

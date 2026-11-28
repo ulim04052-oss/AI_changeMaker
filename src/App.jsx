@@ -279,7 +279,7 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
     const goneSteps = new Set([...goneIds, ...old.materials.filter((m) => !kept.has(m.id)).flatMap((m) => m.steps.map((s) => s.id))]);
     updateProduct(pid, (p) => ({
       ...p, name: form.name.trim(), type: form.type, channel: form.channel.trim(), maker: form.maker.trim(), owner: form.owner.trim(), color: form.color,
-      launch: form.launch, gaps: form.gaps, finishedArrival: arr.finished, materialArrival: arr.material, materials,
+      launch: form.launch, gaps: form.gaps, meetings: Object.fromEntries(Object.entries(form.meetings || {}).filter(([, v]) => v)), finishedArrival: arr.finished, materialArrival: arr.material, materials,
       memos: p.memos.map((m) => (goneSteps.has(m.stepId) ? { ...m, stepId: null } : m)),
     }));
     setData((d) => ({ ...d, vendors: [...new Set([...d.vendors, ...form.materials.map((m) => m.vendor.trim())])] }));

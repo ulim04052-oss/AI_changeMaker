@@ -1,5 +1,6 @@
 // 저장된 데이터 → 화면에 그리기 좋은 모양으로 바꿔 주는 함수들
 import { ruleText } from '../engine/dates.js';
+import { MEETINGS } from './constants.js';
 
 const gapRule = (g) => ({
   finished: ruleText('런칭', g.finishedN, g.finishedUnit),
@@ -20,6 +21,16 @@ export function productEvents(p) {
     )
   );
   const g = gapRule(p.gaps);
+  const meetings = p.meetings || {};
+  MEETINGS.forEach((name, i) => {
+    if (!meetings[name]) return;
+    const id = `${p.id}:meet${i}`;
+    list.push({
+      id, name, kind: 'meet', date: meetings[name], rule: '직접 고른 날짜',
+      productId: p.id, materialId: null, matName: '', vendor: '',
+      label: name, editable: false, auto: false, manual: true, changes: [], memoCount: memoCount(id),
+    });
+  });
   const fixed = [
     { key: 'mat', name: '부자재 입고 (공통)', kind: 'data', date: p.materialArrival, rule: g.material },
     { key: 'fin', name: '완제품 입고', kind: 'data', date: p.finishedArrival, rule: g.finished },
