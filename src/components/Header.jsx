@@ -2,19 +2,13 @@ import { useRef } from 'react';
 import { md } from '../engine/dates.js';
 
 export default function Header({
-  view, onPrev, onNext, onToday, onNew, settingsOpen, setSettingsOpen,
+  onNew, settingsOpen, setSettingsOpen,
   lastBackupAt, daysSinceBackup, onTemplates, onExport, onImportFile,
 }) {
   const fileRef = useRef(null);
   return (
     <header className="header">
       <div className="brand">제품 일정 캘린더</div>
-      <div className="month-nav">
-        <button className="btn icon" aria-label="이전 달" onClick={onPrev}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg></button>
-        <div className="month-label">{view.year}년 {view.month + 1}월</div>
-        <button className="btn icon" aria-label="다음 달" onClick={onNext}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg></button>
-      </div>
-      <button className="btn" onClick={onToday}>오늘</button>
       <div className="grow" />
       <div className="menu-wrap">
         <button className="btn" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(!settingsOpen)}>

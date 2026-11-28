@@ -71,6 +71,7 @@ select.input { padding-right: 28px; }
   background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20;
 }
 .brand { font-weight: 700; font-size: 18px; margin-right: 12px; }
+.month-bar { display: flex; align-items: center; gap: 8px; margin-bottom: -4px; }
 .month-nav { display: flex; align-items: center; gap: 4px; }
 .month-label { font-weight: 700; font-size: 16px; padding: 0 10px; min-width: 128px; text-align: center; }
 .layout { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px 20px; align-items: flex-start; }

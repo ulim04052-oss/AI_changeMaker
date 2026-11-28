@@ -9,6 +9,7 @@ import ProductSidebar from './components/ProductSidebar.jsx';
 import TaskDetail from './components/TaskDetail.jsx';
 import CalendarToolbar from './components/CalendarToolbar.jsx';
 import MonthCalendar from './components/MonthCalendar.jsx';
+import MonthNav from './components/MonthNav.jsx';
 import Notices from './components/Notices.jsx';
 import EmptyState from './components/EmptyState.jsx';
 import NewProductDialog from './components/NewProductDialog.jsx';
@@ -393,6 +394,7 @@ export default function App() {
             vendorOptions={vendorOptions}
             products={visibleProducts}
           />
+          <MonthNav view={view} onPrev={headerProps.onPrev} onNext={headerProps.onNext} onToday={headerProps.onToday} />
           <MonthCalendar
             view={view}
             events={events}
