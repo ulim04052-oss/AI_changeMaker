@@ -18,7 +18,8 @@ import TemplateEditorDialog from './components/TemplateEditorDialog.jsx';
 import TemplateListDialog from './components/TemplateListDialog.jsx';
 import ImportConfirmDialog from './components/ImportConfirmDialog.jsx';
 import ApplyTemplateDialog from './components/ApplyTemplateDialog.jsx';
-import { applyCandidates, recomputeMaterial } from './engine/applyTemplate.js';
+import { applyCandidates, freshSteps, recomputeMaterial } from './engine/applyTemplate.js';
+import { PRODUCT_TYPES } from './data/constants.js';
 
 const uid = (p) => p + Math.random().toString(36).slice(2, 8);
 const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
@@ -281,13 +282,14 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
 
   // ---------- 필요 일정 ----------
   const saveTemplate = (tpl, returnTo) => {
+    const isNew = !data.templates.some((t) => t.id === tpl.id);
     setData((d) => {
       const exists = d.templates.some((t) => t.id === tpl.id);
       return { ...d, templates: exists ? d.templates.map((t) => (t.id === tpl.id ? tpl : t)) : [...d.templates, tpl] };
     });
-    const candidates = applyCandidates(products, tpl);
+    const candidates = applyCandidates(products, tpl, isNew);
     if (candidates.length) {
-      setDialog({ type: 'applyTemplate', template: tpl, returnTo });
+      setDialog({ type: 'applyTemplate', template: tpl, isNew, returnTo });
       return;
     }
     setDialog(returnTo || null);
@@ -301,6 +303,10 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
     setData((d) => ({
       ...d,
       products: d.products.map((p) => {
+        if (pick.has('add:' + p.id)) {
+          const m = { id: uid(p.id + '-'), name: tpl.materialKind, vendor: '', templateId: tpl.id, templateName: tpl.name, steps: freshSteps(p, tpl, () => uid('s')) };
+          return { ...p, materials: [...p.materials, m] };
+        }
         if (!p.materials.some((m) => pick.has(m.id))) return p;
         const gone = new Set();
         const materials = p.materials.map((m) => {
@@ -314,7 +320,7 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
     }));
     setDetailId(null);
     setDialog(returnTo || null);
-    showToast(`"${tpl.name}"을 ${materialIds.length}곳에 반영했어요.`, before);
+    showToast(`"${tpl.name}"을 ${materialIds.length}곳에 ${materialIds.some((x) => x.startsWith('add:')) ? '추가' : '반영'}했어요.`, before);
   };
 
   const deleteTemplate = (tpl) => {
@@ -379,6 +385,8 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
         <NewProductDialog
           templates={data.templates}
           vendors={data.vendors}
+          productTypes={data.productTypes || PRODUCT_TYPES}
+          onTypesChange={(productTypes) => setData((d) => ({ ...d, productTypes }))}
           onClose={() => setDialog(null)}
           onCreate={createProduct}
           onNewTemplate={(draft) => setDialog({ type: 'template', template: null, returnTo: { type: 'new', draft } })}
@@ -390,6 +398,8 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
           product={product}
           templates={data.templates}
           vendors={data.vendors}
+          productTypes={data.productTypes || PRODUCT_TYPES}
+          onTypesChange={(productTypes) => setData((d) => ({ ...d, productTypes }))}
           onClose={() => setDialog(null)}
           onSave={(f) => saveProductInfo(product.id, f)}
         />
@@ -414,7 +424,8 @@ function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
       {dialog?.type === 'applyTemplate' && (
         <ApplyTemplateDialog
           template={dialog.template}
-          candidates={applyCandidates(products, dialog.template)}
+          candidates={applyCandidates(products, dialog.template, dialog.isNew)}
+          isNew={dialog.isNew}
           onSkip={() => { setDialog(dialog.returnTo || null); showToast(`"${dialog.template.name}" 필요 일정을 저장했어요. 새로 만드는 제품부터 적용돼요.`); }}
           onApply={(ids) => applyTemplate(dialog.template, ids, dialog.returnTo)}
         />

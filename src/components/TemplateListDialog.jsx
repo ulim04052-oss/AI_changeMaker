@@ -18,7 +18,9 @@ export default function TemplateListDialog({ templates, usage, onClose, onEdit, 
                 {t.materialKind} · {t.steps.length ? `단계 ${t.steps.length}개` : '단계 없음'}
                 {usage[t.id] ? ` · 제품 ${usage[t.id]}곳에서 사용 중` : ''}
               </div>
-              {asking === t.id && (
+            </div>
+            {asking !== t.id && <button className="btn sm" onClick={() => onEdit(t)}>수정</button>}
+            {asking === t.id && (
                 <div className="ask-inline">
                   <span>
                     지울까요?{usage[t.id] ? ' 이미 만든 제품의 일정은 그대로 남아요.' : ''}
@@ -28,9 +30,7 @@ export default function TemplateListDialog({ templates, usage, onClose, onEdit, 
                     <button className="btn sm" onClick={() => setAsking(null)}>취소</button>
                   </div>
                 </div>
-              )}
-            </div>
-            <button className="btn sm" onClick={() => onEdit(t)}>수정</button>
+            )}
           </div>
         ))}
       </div>

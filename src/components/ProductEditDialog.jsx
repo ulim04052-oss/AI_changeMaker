@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
-import { CHANNELS, MATERIAL_KINDS, PRODUCT_COLORS, PRODUCT_TYPES, UNITS } from '../data/constants.js';
+import TypePicker from './TypePicker.jsx';
+import { CHANNELS, MATERIAL_KINDS, PRODUCT_COLORS, UNITS } from '../data/constants.js';
 import { arrivals, md, mdw, workdayDiff } from '../engine/dates.js';
 
 // 제품 정보 칸을 누르면 뜨는 수정 창 (새 제품 추가와 같은 모양)
-export default function ProductEditDialog({ product, templates, vendors, onClose, onSave }) {
+export default function ProductEditDialog({ product, templates, vendors, productTypes, onTypesChange, onClose, onSave }) {
   const [f, setF] = useState(() => ({
     name: product.name,
     type: product.type,
@@ -21,20 +22,19 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
   const set = (patch) => setF((x) => ({ ...x, ...patch }));
   const setGap = (patch) => setF((x) => ({ ...x, gaps: { ...x.gaps, ...patch } }));
   const setMat = (i, patch) => setF((x) => ({ ...x, materials: x.materials.map((m, j) => (j === i ? { ...m, ...patch } : m)) }));
-  const customType = !PRODUCT_TYPES.includes(f.type);
 
   const arr = useMemo(() => (f.launch ? arrivals(f.launch, f.gaps) : null), [f.launch, f.gaps]);
   const datesChanged = arr && (arr.material !== product.materialArrival || arr.finished !== product.finishedArrival || f.launch !== product.launch);
   const shiftDays = arr ? workdayDiff(product.materialArrival, arr.material) : 0;
   const stepCount = product.materials.reduce((n, m) => n + m.steps.length, 0);
   const removed = product.materials.filter((m) => !f.materials.some((x) => x.id === m.id));
-  const canSave = f.name.trim() && f.launch && f.materials.every((m) => m.kind.trim() && m.vendor.trim() && (m.id || m.templateId));
+  const canSave = f.name.trim() && f.launch && f.materials.every((m) => m.kind.trim() && (m.id || m.templateId));
 
   return (
     <Modal title="제품 정보 수정" hint={product.name} onClose={onClose} width={1120}>
       <datalist id="edit-vendor-list">{vendors.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="edit-channel-list">{CHANNELS.map((v) => <option key={v} value={v} />)}</datalist>
-      <datalist id="edit-kind-list">{[...MATERIAL_KINDS, '용기', '캡'].map((v) => <option key={v} value={v} />)}</datalist>
+      <datalist id="edit-kind-list">{[...new Set([...MATERIAL_KINDS, '용기', '캡', ...templates.map((t) => t.materialKind)])].map((v) => <option key={v} value={v} />)}</datalist>
       <div className="modal-body two-col compact">
         <div className="col gap12 edit-left">
         <div className="form-grid">
@@ -45,13 +45,7 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
           <input id="pe-owner" className="input" value={f.owner} onChange={(e) => set({ owner: e.target.value })} placeholder="예: 배유림" />
 
           <span>제품 유형</span>
-          <div className="row wrap gap6">
-            {PRODUCT_TYPES.map((t) => (
-              <button key={t} type="button" className={'pill' + (f.type === t ? ' on' : '')} onClick={() => set({ type: t })}>{t}</button>
-            ))}
-            <button type="button" className={'pill' + (customType ? ' on' : '')} onClick={() => set({ type: customType ? f.type : '' })}>+ 직접 입력</button>
-            {customType && <input className="input sm" value={f.type} onChange={(e) => set({ type: e.target.value })} aria-label="제품 유형 직접 입력" />}
-          </div>
+          <TypePicker types={productTypes} value={f.type} onChange={(type) => set({ type })} onTypesChange={onTypesChange} />
 
           <label htmlFor="pe-maker">제조사</label>
           <input id="pe-maker" className="input" value={f.maker} onChange={(e) => set({ maker: e.target.value })} placeholder="예: 코스맥스 / 화이트코스팜 (호수별로 다르면 같이 적어요)" />
@@ -79,17 +73,22 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
 
         {gapOpen && (
           <div className="gap-box">
-            <span>완제품 입고 = 런칭</span>
-            <input type="number" min="0" className="input num-in" value={f.gaps.finishedN} onChange={(e) => setGap({ finishedN: Math.max(0, +e.target.value) })} aria-label="완제품 입고 간격" />
-            <select className="input sm" value={f.gaps.finishedUnit} onChange={(e) => setGap({ finishedUnit: e.target.value })} aria-label="단위">
-              {UNITS.map((u) => <option key={u}>{u}</option>)}
-            </select>
-            <span>전 · 부자재 입고 = 완제품 입고</span>
-            <input type="number" min="0" className="input num-in" value={f.gaps.materialN} onChange={(e) => setGap({ materialN: Math.max(0, +e.target.value) })} aria-label="부자재 입고 간격" />
-            <select className="input sm" value={f.gaps.materialUnit} onChange={(e) => setGap({ materialUnit: e.target.value })} aria-label="단위">
-              {UNITS.map((u) => <option key={u}>{u}</option>)}
-            </select>
-            <span>전</span>
+            <div className="gap-line">
+              <span className="gap-name">완제품 입고</span><span>= 런칭</span>
+              <input type="number" min="0" className="input num-in" value={f.gaps.finishedN} onChange={(e) => setGap({ finishedN: Math.max(0, +e.target.value) })} aria-label="완제품 입고 간격" />
+              <select className="input sm" value={f.gaps.finishedUnit} onChange={(e) => setGap({ finishedUnit: e.target.value })} aria-label="단위">
+                {UNITS.map((u) => <option key={u}>{u}</option>)}
+              </select>
+              <span>전</span>
+            </div>
+            <div className="gap-line">
+              <span className="gap-name">부자재 입고</span><span>= 완제품 입고</span>
+              <input type="number" min="0" className="input num-in" value={f.gaps.materialN} onChange={(e) => setGap({ materialN: Math.max(0, +e.target.value) })} aria-label="부자재 입고 간격" />
+              <select className="input sm" value={f.gaps.materialUnit} onChange={(e) => setGap({ materialUnit: e.target.value })} aria-label="단위">
+                {UNITS.map((u) => <option key={u}>{u}</option>)}
+              </select>
+              <span>전</span>
+            </div>
           </div>
         )}
 
@@ -134,7 +133,7 @@ export default function ProductEditDialog({ product, templates, vendors, onClose
               {m.id ? (
                 <span className="muted small">일정 {m.steps}개 · 그대로 유지</span>
               ) : (
-                <select className="input" value={m.templateId} onChange={(e) => setMat(i, { templateId: e.target.value })} aria-label="필요 일정">
+                <select className="input" value={m.templateId} onChange={(e) => setMat(i, { templateId: e.target.value, kind: templates.find((x) => x.id === e.target.value)?.materialKind || m.kind })} aria-label="필요 일정">
                   {templates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
               )}

@@ -3,15 +3,24 @@
 import { md, stepsFromTemplate } from './dates.js';
 
 // 이 필요 일정을 반영할 수 있는 부자재 목록
-export function applyCandidates(products, tpl) {
+// withAdd: 새로 만든 필요 일정이면, 아직 이 부자재가 없는 제품도 '새로 추가' 줄로 보여줘요
+export function applyCandidates(products, tpl, withAdd = false) {
   const out = [];
-  products.forEach((p) =>
+  products.forEach((p) => {
+    let has = false;
     p.materials.forEach((m) => {
       const uses = m.templateId === tpl.id;
-      if (uses || m.name === tpl.materialKind) out.push({ product: p, material: m, uses });
-    })
-  );
+      if (uses || m.name === tpl.materialKind) { has = true; out.push({ key: m.id, product: p, material: m, uses }); }
+    });
+    if (withAdd && !has) out.push({ key: 'add:' + p.id, product: p, material: null, uses: false, add: true });
+  });
   return out;
+}
+
+// 제품에 이 필요 일정으로 부자재를 새로 붙일 때 생기는 일정
+export function freshSteps(product, tpl, makeId) {
+  const fixed = { 런칭: product.launch, '완제품 입고': product.finishedArrival, '부자재 입고': product.materialArrival };
+  return stepsFromTemplate(tpl, fixed).map((s) => ({ id: makeId(), name: s.name, kind: s.kind, date: s.date, rule: s.rule, changes: [] }));
 }
 
 // 부자재 하나를 필요 일정대로 다시 계산 → { steps, changed, added, removed }

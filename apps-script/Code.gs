@@ -75,6 +75,7 @@ function getData() {
       return { id: t[0], name: t[1], materialKind: t[2], steps: parseJson_(t[3], []) };
     }),
     vendors: parseJson_(getSetting_('vendors'), []),
+    productTypes: parseJson_(getSetting_('productTypes'), null),
     lastBackupAt: getSetting_('lastBackupAt') || null,
   };
   return JSON.stringify({ revision: getRevision(), data: data });
@@ -114,6 +115,7 @@ function saveData(json, baseRevision) {
     writeRows_('memos', N);
     writeRows_('templates', T);
     setSetting_('vendors', JSON.stringify(d.vendors || []));
+    setSetting_('productTypes', JSON.stringify(d.productTypes || []));
     setSetting_('lastBackupAt', d.lastBackupAt || '');
     var next = String(Number(current || 0) + 1);
     setSetting_('revision', next);

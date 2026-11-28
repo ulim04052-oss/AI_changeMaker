@@ -6,6 +6,7 @@
 //
 // 화면 코드는 어느 모드인지 몰라도 돼요. 이 파일만 바꾸면 저장 장소를 바꿀 수 있어요.
 import { createMockData, mockTemplates } from '../data/mockData.js';
+import { PRODUCT_TYPES } from '../data/constants.js';
 
 const clone = (x) => JSON.parse(JSON.stringify(x));
 
@@ -47,6 +48,7 @@ function normalize(data) {
     products: d.products || [],
     templates: d.templates && d.templates.length ? d.templates : clone(mockTemplates),
     vendors: d.vendors || [],
+    productTypes: Array.isArray(d.productTypes) ? d.productTypes : [...PRODUCT_TYPES],
     lastBackupAt: d.lastBackupAt || null,
   };
 }
@@ -55,9 +57,9 @@ export async function loadAll() {
   if (storageMode() === 'demo') {
     // 주소 끝에 ?empty 를 붙이면 "제품이 하나도 없는 첫 화면"을 볼 수 있어요.
     if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('empty')) {
-      return { ...clone(createMockData()), products: [] };
+      return normalize({ ...clone(createMockData()), products: [] });
     }
-    return clone(createMockData());
+    return normalize(clone(createMockData()));
   }
   const res = JSON.parse(await call('getData'));
   revision = res.revision;

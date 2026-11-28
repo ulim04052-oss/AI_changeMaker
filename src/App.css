@@ -238,7 +238,7 @@ select.input { padding-right: 28px; }
 .compact .swatch { width: 32px; height: 32px; }
 .compact .form-grid { gap: 8px 12px; }
 .compact .arrival-row { padding: 8px 12px; }
-.compact .mat-row { grid-template-columns: 88px minmax(0, 1fr) minmax(0, 1.3fr) 40px; }
+.compact .mat-row { grid-template-columns: 108px minmax(0, 1fr) minmax(0, 1.3fr) 40px; }
 .compact .mat-row .btn.icon { width: 40px; height: 40px; }
 .modal-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 24px; border-top: 1px solid #E6E6E1; }
 .two-col { display: flex; flex-wrap: wrap; gap: 24px; }
@@ -272,7 +272,7 @@ select.input { padding-right: 28px; }
 .apply-list label { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .apply-list label:has(input:checked) { border-color: var(--ink); background: var(--soft); }
 .apply-list input { width: 18px; height: 18px; flex-shrink: 0; }
-.tpl-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.tpl-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
 
 .form-col.wide { flex: 1 1 720px; }
 .preview.narrow { flex: 1 1 280px; }
@@ -298,3 +298,13 @@ select.input { padding-right: 28px; }
   .step-grid { grid-template-columns: 1fr 1fr; padding-bottom: 8px; border-bottom: 1px solid var(--line-2); }
   .step-grid.head { display: none; }
 }
+
+.tpl-row > .ask-inline { flex-basis: 100%; margin-top: 0; margin-right: -24px; }
+.type-pill { display: inline-flex; align-items: center; padding: 0; overflow: hidden; cursor: default; }
+.type-pill .type-name { height: 100%; padding: 0 6px 0 14px; border: 0; background: transparent; color: inherit; cursor: pointer; font-size: 13px; }
+.type-pill .type-x { width: 26px; height: 100%; padding: 0 6px 0 2px; border: 0; background: transparent; color: #9a9a94; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.type-pill .type-x:hover { color: var(--ink); }
+.type-pill.on .type-x { color: #c9c9c3; }
+.type-pill.on .type-x:hover { color: #fff; }
+.gap-box .gap-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex-basis: 100%; }
+.gap-box .gap-name { width: 76px; font-weight: 700; }

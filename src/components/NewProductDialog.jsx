@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import Modal from './Modal.jsx';
-import { CHANNELS, KINDS, MATERIAL_KINDS, PRODUCT_COLORS, PRODUCT_TYPES, UNITS } from '../data/constants.js';
+import TypePicker from './TypePicker.jsx';
+import { CHANNELS, KINDS, MATERIAL_KINDS, PRODUCT_COLORS, UNITS } from '../data/constants.js';
 import { arrivals, full, mdw, stepsFromTemplate } from '../engine/dates.js';
 
-const initialForm = (templates) => ({
+const initialForm = (templates, types) => ({
   name: '',
-  type: PRODUCT_TYPES[0],
+  type: types[0] || '',
   channel: '올리브영',
   maker: '',
   owner: '배유림',
@@ -18,13 +19,12 @@ const initialForm = (templates) => ({
   ],
 });
 
-export default function NewProductDialog({ templates, vendors, onClose, onCreate, onNewTemplate, draft }) {
-  const [f, setF] = useState(() => draft || initialForm(templates));
+export default function NewProductDialog({ templates, vendors, productTypes, onTypesChange, onClose, onCreate, onNewTemplate, draft }) {
+  const [f, setF] = useState(() => draft || initialForm(templates, productTypes));
   const [gapOpen, setGapOpen] = useState(false);
   const set = (patch) => setF((x) => ({ ...x, ...patch }));
   const setGap = (patch) => setF((x) => ({ ...x, gaps: { ...x.gaps, ...patch } }));
   const setMat = (i, patch) => setF((x) => ({ ...x, materials: x.materials.map((m, j) => (j === i ? { ...m, ...patch } : m)) }));
-  const customType = !PRODUCT_TYPES.includes(f.type);
 
   const preview = useMemo(() => {
     if (!f.launch) return { rows: [], empties: [] };
@@ -46,13 +46,13 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
     return { rows, empties, arr };
   }, [f, templates]);
 
-  const canCreate = f.name.trim() && f.launch && f.materials.every((m) => m.kind.trim() && m.vendor.trim() && m.templateId);
+  const canCreate = f.name.trim() && f.launch && f.materials.every((m) => m.kind.trim() && m.templateId);
 
   return (
     <Modal title="새 제품 추가" hint="상단 [+ 새 제품] 또는 제품 목록 맨 아래에서 열려요" onClose={onClose}>
       <datalist id="vendor-list">{vendors.map((v) => <option key={v} value={v} />)}</datalist>
       <datalist id="channel-list">{CHANNELS.map((v) => <option key={v} value={v} />)}</datalist>
-      <datalist id="kind-list">{[...MATERIAL_KINDS, '용기', '캡'].map((v) => <option key={v} value={v} />)}</datalist>
+      <datalist id="kind-list">{[...new Set([...MATERIAL_KINDS, '용기', '캡', ...templates.map((t) => t.materialKind)])].map((v) => <option key={v} value={v} />)}</datalist>
       <div className="modal-body two-col">
         <div className="col gap20 form-col">
           <div className="col gap12">
@@ -65,13 +65,7 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
               <input id="np-owner" className="input" value={f.owner} onChange={(e) => set({ owner: e.target.value })} placeholder="예: 배유림" />
 
               <span>제품 유형</span>
-              <div className="row wrap gap6">
-                {PRODUCT_TYPES.map((t) => (
-                  <button key={t} type="button" className={'pill' + (f.type === t ? ' on' : '')} onClick={() => set({ type: t })}>{t}</button>
-                ))}
-                <button type="button" className={'pill' + (customType ? ' on' : '')} onClick={() => set({ type: customType ? f.type : '' })}>+ 직접 입력</button>
-                {customType && <input className="input sm" value={f.type} onChange={(e) => set({ type: e.target.value })} placeholder="유형 이름" aria-label="제품 유형 직접 입력" />}
-              </div>
+              <TypePicker types={productTypes} value={f.type} onChange={(type) => set({ type })} onTypesChange={onTypesChange} />
 
               <label htmlFor="np-maker">제조사</label>
               <input id="np-maker" className="input" value={f.maker} onChange={(e) => set({ maker: e.target.value })} placeholder="예: 코스맥스 / 화이트코스팜 (호수별로 다르면 같이 적어요)" />
@@ -115,17 +109,22 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
             </div>
             {gapOpen && (
               <div className="gap-box">
-                <span>완제품 입고 = 런칭</span>
-                <input type="number" min="0" className="input num-in" value={f.gaps.finishedN} onChange={(e) => setGap({ finishedN: Math.max(0, +e.target.value) })} aria-label="완제품 입고 간격" />
-                <select className="input sm" value={f.gaps.finishedUnit} onChange={(e) => setGap({ finishedUnit: e.target.value })} aria-label="단위">
-                  {UNITS.map((u) => <option key={u}>{u}</option>)}
-                </select>
-                <span>전 · 부자재 입고 = 완제품 입고</span>
-                <input type="number" min="0" className="input num-in" value={f.gaps.materialN} onChange={(e) => setGap({ materialN: Math.max(0, +e.target.value) })} aria-label="부자재 입고 간격" />
-                <select className="input sm" value={f.gaps.materialUnit} onChange={(e) => setGap({ materialUnit: e.target.value })} aria-label="단위">
-                  {UNITS.map((u) => <option key={u}>{u}</option>)}
-                </select>
-                <span>전</span>
+                <div className="gap-line">
+                  <span className="gap-name">완제품 입고</span><span>= 런칭</span>
+                  <input type="number" min="0" className="input num-in" value={f.gaps.finishedN} onChange={(e) => setGap({ finishedN: Math.max(0, +e.target.value) })} aria-label="완제품 입고 간격" />
+                  <select className="input sm" value={f.gaps.finishedUnit} onChange={(e) => setGap({ finishedUnit: e.target.value })} aria-label="단위">
+                    {UNITS.map((u) => <option key={u}>{u}</option>)}
+                  </select>
+                  <span>전</span>
+                </div>
+                <div className="gap-line">
+                  <span className="gap-name">부자재 입고</span><span>= 완제품 입고</span>
+                  <input type="number" min="0" className="input num-in" value={f.gaps.materialN} onChange={(e) => setGap({ materialN: Math.max(0, +e.target.value) })} aria-label="부자재 입고 간격" />
+                  <select className="input sm" value={f.gaps.materialUnit} onChange={(e) => setGap({ materialUnit: e.target.value })} aria-label="단위">
+                    {UNITS.map((u) => <option key={u}>{u}</option>)}
+                  </select>
+                  <span>전</span>
+                </div>
                 <span className="full-line">이 제품에만 적용돼요. 기본값(1달 · 2주)은 그대로예요.</span>
               </div>
             )}
@@ -143,7 +142,7 @@ export default function NewProductDialog({ templates, vendors, onClose, onCreate
                   <input className="input" list="vendor-list" value={m.vendor} onChange={(e) => setMat(i, { vendor: e.target.value })} aria-label="업체 (목록에서 고르거나 새로 입력)" placeholder="업체" />
                   <select
                     className="input" value={m.templateId || ''} aria-label="필요 일정"
-                    onChange={(e) => (e.target.value === '__new' ? onNewTemplate(f) : setMat(i, { templateId: e.target.value }))}
+                    onChange={(e) => (e.target.value === '__new' ? onNewTemplate(f) : setMat(i, { templateId: e.target.value, kind: templates.find((x) => x.id === e.target.value)?.materialKind || m.kind }))}
                   >
                     {templates.map((x) => (
                       <option key={x.id} value={x.id}>{x.name} · {x.steps.length ? `단계 ${x.steps.length}개` : '단계 없음'}</option>
