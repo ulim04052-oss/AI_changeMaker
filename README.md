@@ -2,7 +2,9 @@
 
 화장품 제품별 디자인 개발 일정을 **필요 일정(단계 묶음)으로 한 번에 만들고**, 일정이 바뀌면 **뒤 일정까지 같이 밀 수 있는** 달력 웹 서비스입니다.
 
-지금은 **1단계: 화면 먼저** 입니다. 예시(가짜) 데이터로 움직이고, 새로고침하면 처음으로 돌아가요.
+저장은 **구글 시트**에 해요 (회사 팀원이 같이 씀). 구글 Apps Script 웹앱으로 배포하고, 그 밖에서 열면(개발 서버·미리보기) 예시 데이터로만 움직여요.
+
+설치 방법: [docs/구글시트_설치안내.md](docs/구글시트_설치안내.md)
 
 ## 실행
 
@@ -10,6 +12,7 @@
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # dist/ 폴더에 배포용 파일
+npm run build:gas  # apps-script/Index.html (구글 Apps Script 에 붙여넣을 한 파일)
 ```
 
 주소 끝에 `?empty` 를 붙이면 제품이 하나도 없는 첫 화면을 볼 수 있어요.
@@ -28,7 +31,9 @@ npm run build    # dist/ 폴더에 배포용 파일
 
 | 위치 | 하는 일 |
 | --- | --- |
-| `src/storage/storage.js` | 💾 데이터 읽고 쓰기 **창구 하나**. 지금은 메모리, 다음에 localStorage → 나중에 Supabase로 이 파일만 바꿔요. |
+| `src/storage/storage.js` | 💾 데이터 읽고 쓰기 **창구 하나**. Apps Script 안이면 구글 시트, 아니면 예시 데이터. |
+| `apps-script/Code.gs` | 구글 시트에 읽고 쓰는 서버 코드 (Apps Script 에 붙여넣음) |
+| `apps-script/Index.html` | 화면 전체를 한 파일로 묶은 것 (`npm run build:gas` 로 만듦) |
 | `src/engine/dates.js` | ⚠️ 임시 날짜 계산기 (영업일, 공휴일, 역산). 계산 담당이 진짜 엔진으로 교체할 자리예요. |
 | `src/data/constants.js` | 작업 유형 색, 제품 색, 한국 공휴일 목록 |
 | `src/data/mockData.js` | 예시 제품 3개, 필요 일정 4개 |

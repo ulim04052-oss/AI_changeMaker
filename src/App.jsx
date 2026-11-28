@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { loadAll, saveAll, exportBackup, parseBackup } from './storage/storage.js';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { loadAll, saveAll, exportBackup, parseBackup, storageMode, onSaveStatus, hasRemoteChanges, retrySave } from './storage/storage.js';
 import { allEvents, findEvent } from './data/selectors.js';
 import {
   addWorkdays, arrivals, isOffDay, md, parse, prevWorkday, stepsFromTemplate, todayIso, workdayDiff,
@@ -21,20 +21,73 @@ import ImportConfirmDialog from './components/ImportConfirmDialog.jsx';
 const uid = (p) => p + Math.random().toString(36).slice(2, 8);
 const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
 
+// 처음에 저장소에서 데이터를 불러온 뒤 달력을 그려요.
 export default function App() {
-  const [data, setData] = useState(loadAll);
+  const [loaded, setLoaded] = useState(null); // { data, key }
+  const [error, setError] = useState(null);
+  const [saveStatus, setSaveStatus] = useState({ state: 'demo' });
+
+  const load = (note) => {
+    setError(null);
+    loadAll()
+      .then((data) => setLoaded((x) => ({ data, key: (x?.key || 0) + 1, note })))
+      .catch((e) => setError(e.message || String(e)));
+  };
+  useEffect(() => { load(); return onSaveStatus(setSaveStatus); }, []);
+
+  // 다른 창에 갔다 돌아오면, 그사이 팀원이 바꾼 게 있는지 확인
+  useEffect(() => {
+    if (storageMode() !== 'sheet') return undefined;
+    const onFocus = () => hasRemoteChanges().then((changed) => changed && load('팀원이 바꾼 내용을 불러왔어요.')).catch(() => {});
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
+
+  if (error) {
+    return (
+      <div className="loading">
+        <b>불러오지 못했어요</b>
+        <span className="muted">{error}</span>
+        <button className="btn primary" onClick={() => load()}>다시 시도</button>
+      </div>
+    );
+  }
+  if (!loaded) return <div className="loading"><span className="muted">구글 시트에서 불러오는 중…</span></div>;
+  return (
+    <CalendarApp
+      key={loaded.key}
+      initialData={loaded.data}
+      initialNote={loaded.note}
+      saveStatus={saveStatus}
+      onReload={() => load('최신 내용을 다시 불러왔어요.')}
+    />
+  );
+}
+
+function CalendarApp({ initialData, initialNote, saveStatus, onReload }) {
+  const [data, setData] = useState(initialData);
   const [selectedId, setSelectedId] = useState(() => data.products[0]?.id || null);
   const [scope, setScope] = useState('one'); // 'one' = 이 제품만, 'all' = 전체 제품
   const [vendor, setVendor] = useState('전체');
-  const [view, setView] = useState({ year: 2026, month: 11 }); // 예시 데이터가 있는 2026년 12월부터
+  // 미리보기는 예시 데이터가 있는 2026년 12월부터, 실제(구글 시트)는 이번 달부터
+  const [view, setView] = useState(() => {
+    if (storageMode() === 'demo') return { year: 2026, month: 11 };
+    const d = new Date();
+    return { year: d.getFullYear(), month: d.getMonth() };
+  });
   const [detailId, setDetailId] = useState(null);
   const [banner, setBanner] = useState(null); // 노란 물어보기 / 빨간 경고
-  const [toast, setToast] = useState(null); // 검은 알림 (+ 되돌리기)
+  const [toast, setToast] = useState(initialNote ? { text: initialNote } : null); // 검은 알림 (+ 되돌리기)
   const [backupHidden, setBackupHidden] = useState(false);
   const [dialog, setDialog] = useState(null); // { type, ... }
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  useEffect(() => saveAll(data), [data]);
+  // 데이터가 바뀌면 저장 (처음 불러온 그대로일 땐 저장 안 함)
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    saveAll(data);
+  }, [data]);
 
   const products = data.products;
   const product = products.find((p) => p.id === selectedId) || products[0] || null;
@@ -263,7 +316,8 @@ export default function App() {
   };
 
   const daysSinceBackup = data.lastBackupAt ? daysBetween(data.lastBackupAt, todayIso()) : 999;
-  const showBackupNag = !backupHidden && products.length > 0 && daysSinceBackup >= 7;
+  // 구글 시트 모드에선 시트 자체에 변경 기록이 남아서 백업 알림은 안 띄워요.
+  const showBackupNag = storageMode() === 'demo' && !backupHidden && products.length > 0 && daysSinceBackup >= 7;
 
   const headerProps = {
     view,
@@ -278,6 +332,9 @@ export default function App() {
     onTemplates: () => { setSettingsOpen(false); setDialog({ type: 'templates' }); },
     onExport: doExport,
     onImportFile: pickImportFile,
+    saveStatus,
+    onRetrySave: retrySave,
+    onReload,
   };
 
   const dialogs = (
